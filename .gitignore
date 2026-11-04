@@ -1,0 +1,25 @@
+# Build output
+dist/
+build/
+bin/
+obj/
+
+# Visual Studio / MSVC build artifacts
+.vs/
+*.obj
+*.res
+*.pdb
+*.ilk
+*.idb
+*.user
+*.suo
+
+# Temporary & update swap files
+*.old
+*.new
+self-test*.txt
+*.log
+
+# Windows thumbnail & desktop caches
+Thumbs.db
+Desktop.ini

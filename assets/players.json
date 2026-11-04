@@ -1,0 +1,1669 @@
+{
+ "version": 1,
+ "updated": "2026-11-03T11:22:48Z",
+ "count": 277,
+ "players": [
+  {
+   "username": "avynchius",
+   "roblox_id": 1332447114,
+   "status": "Enemy",
+   "clan": "333"
+  },
+  {
+   "username": "B44TH44",
+   "roblox_id": 9362984094,
+   "status": "Enemy",
+   "clan": "333"
+  },
+  {
+   "username": "Im_Ba2con",
+   "roblox_id": 2891233713,
+   "status": "Enemy",
+   "clan": "333"
+  },
+  {
+   "username": "ObscuredLimbo",
+   "roblox_id": 3730186305,
+   "status": "Enemy",
+   "clan": "333"
+  },
+  {
+   "username": "perconcence",
+   "roblox_id": 433561734,
+   "status": "Enemy",
+   "clan": "333"
+  },
+  {
+   "username": "bananiskek",
+   "roblox_id": 1356398038,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "bkuuygrt",
+   "roblox_id": 1976337655,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "ChromiumUI",
+   "roblox_id": 822804044,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "cuteboizdeclab",
+   "roblox_id": 484884666,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "DAmanMaN20",
+   "roblox_id": 31685643,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "djnwuuuu",
+   "roblox_id": 1813522341,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "FadedOzukee",
+   "roblox_id": 316205588,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "fanictaljack",
+   "roblox_id": 26197765,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "farexii",
+   "roblox_id": 3259606790,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "jaydabean700",
+   "roblox_id": 3675265,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "kv1nsiA",
+   "roblox_id": 1736219775,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "MadeByRuby0",
+   "roblox_id": 7997404039,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "maksimuki103984",
+   "roblox_id": 2608700974,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "mamaxkrd",
+   "roblox_id": 1678499923,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "menarbm",
+   "roblox_id": 7076218264,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "MenyQRlegend990",
+   "roblox_id": 2781187588,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "MIdoriDrima",
+   "roblox_id": 5294101256,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "mmmdabest",
+   "roblox_id": 204195813,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "mrboogervert",
+   "roblox_id": 10868150905,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "NobodyBeWatchingMe",
+   "roblox_id": 1266847967,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "Qwe34608fpm",
+   "roblox_id": 4423813800,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "redwing7226",
+   "roblox_id": 1597015,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "Scentinesl",
+   "roblox_id": 10711710067,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "StyanaxArmada",
+   "roblox_id": 4170488249,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "Suusy_Jessie",
+   "roblox_id": 4738310711,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "Th0riu",
+   "roblox_id": 3739953861,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "The_Astr1s",
+   "roblox_id": 1147650773,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "topchik2289002",
+   "roblox_id": 4179455294,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "virtex555333",
+   "roblox_id": 732760999,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "WFSXII",
+   "roblox_id": 1237665530,
+   "status": "Enemy",
+   "clan": "CRES"
+  },
+  {
+   "username": "arcsali",
+   "roblox_id": 682191161,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "BlueStar0025",
+   "roblox_id": 910420936,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "DesertedMers",
+   "roblox_id": 118278031,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "dreigonsky",
+   "roblox_id": 1583595521,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "ErrorSansGT",
+   "roblox_id": 1503809631,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "ExiledOath",
+   "roblox_id": 1822087347,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Exilordez",
+   "roblox_id": 8424418638,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "guescris11",
+   "roblox_id": 460401164,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "heksusbaboy2",
+   "roblox_id": 682028667,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "ignaciocrisgamer37",
+   "roblox_id": 524763981,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Iso_Rem",
+   "roblox_id": 381090490,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "jahir0228",
+   "roblox_id": 3354286239,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "jahir0229",
+   "roblox_id": 5514357928,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "jcxd2018",
+   "roblox_id": 637931357,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "jfjfjfjfjdjfjkf",
+   "roblox_id": 1910415326,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Koala_Games11",
+   "roblox_id": 843329127,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "lollgaimerIUTU",
+   "roblox_id": 345919888,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Lower2334",
+   "roblox_id": 3638259562,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Luke61420",
+   "roblox_id": 388723640,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Mako0h",
+   "roblox_id": 822985895,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "natsuthekib",
+   "roblox_id": 1819172348,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "ortonsplay",
+   "roblox_id": 608359764,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "pan_demiel19",
+   "roblox_id": 2596706325,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "PeacefulSebas",
+   "roblox_id": 129777570,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "pelopro2_777",
+   "roblox_id": 2563425814,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Prueba_996",
+   "roblox_id": 8957010741,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "randy35768",
+   "roblox_id": 829639834,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Rene_Frogie",
+   "roblox_id": 828722631,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "TheSilentCent",
+   "roblox_id": 3030919101,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "victoryvy2",
+   "roblox_id": 886360560,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "yamilleague",
+   "roblox_id": 2245703908,
+   "status": "Enemy",
+   "clan": "EF"
+  },
+  {
+   "username": "Klim_Patriot1234",
+   "roblox_id": 1650255955,
+   "status": "Enemy",
+   "clan": "GOK"
+  },
+  {
+   "username": "aaaaaaaaqwqaaaaaa",
+   "roblox_id": 1680873670,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "char4216",
+   "roblox_id": 1598953096,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "ClownDetected",
+   "roblox_id": 398464788,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "DogToSecretDog",
+   "roblox_id": 7752131426,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "Fanta_loz3",
+   "roblox_id": 7224027954,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "fishybunny123bad",
+   "roblox_id": 1896371562,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "franprahadsa",
+   "roblox_id": 156797476,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "greedyfireboypikachu",
+   "roblox_id": 127217615,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "Inostupid01",
+   "roblox_id": 2446565212,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "jason_tnn",
+   "roblox_id": 994134961,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "Justaaccount1464dse",
+   "roblox_id": 5655568893,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "kakakaka0012b",
+   "roblox_id": 1704112149,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "lflnity",
+   "roblox_id": 2629017224,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "LikeVelcro",
+   "roblox_id": 7575582100,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "LOLEZSA",
+   "roblox_id": 1060231136,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "Lute_meme",
+   "roblox_id": 2277654326,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "MnotLMifsP",
+   "roblox_id": 7562372940,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "Moonlight77719",
+   "roblox_id": 3517633819,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "omgitisgator",
+   "roblox_id": 10452746266,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "roblox13247563",
+   "roblox_id": 1184656130,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "samiq00",
+   "roblox_id": 131351663,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "Savik228337",
+   "roblox_id": 1437294341,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "TheEpicBrik",
+   "roblox_id": 2607966787,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "trueautian",
+   "roblox_id": 10969948078,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "v2l0ne",
+   "roblox_id": 296986352,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "Xx_N2",
+   "roblox_id": 972003441,
+   "status": "Enemy",
+   "clan": "HAKAI"
+  },
+  {
+   "username": "0bscuranga",
+   "roblox_id": 475140846,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "24x828",
+   "roblox_id": 2050900094,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "67mango21104",
+   "roblox_id": 9390130684,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "ArtemGIl2022",
+   "roblox_id": 3504973861,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "botaccount508",
+   "roblox_id": 4700487152,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Bulatchovic",
+   "roblox_id": 1085612183,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Den1yx",
+   "roblox_id": 2706844434,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "fhkwfvebfh",
+   "roblox_id": 1926304496,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "FrezzW1N8",
+   "roblox_id": 7587406113,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "KiryuX3",
+   "roblox_id": 2475727414,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Klouderty",
+   "roblox_id": 3460666492,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "ligthing2961",
+   "roblox_id": 1861763123,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "luminou2007",
+   "roblox_id": 1499765291,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "NahFizzle",
+   "roblox_id": 10125936304,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Ninjaisking8alt",
+   "roblox_id": 4166644388,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Ohio_2procenta",
+   "roblox_id": 8397118521,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Piarxiss",
+   "roblox_id": 1237536972,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "pr0st0ja",
+   "roblox_id": 1924388404,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "RAzer3000000000",
+   "roblox_id": 1984578461,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Remp1qqe",
+   "roblox_id": 3590962175,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Revenantpainx",
+   "roblox_id": 11059254468,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "rom20127",
+   "roblox_id": 1359186102,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Shizanei",
+   "roblox_id": 4742650533,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "sniper416416",
+   "roblox_id": 51612143,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Tarius_008",
+   "roblox_id": 902456533,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "Totalynotrat",
+   "roblox_id": 2011026920,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "uqmn",
+   "roblox_id": 418149084,
+   "status": "Enemy",
+   "clan": null
+  },
+  {
+   "username": "13RoGhoul",
+   "roblox_id": 1213985748,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "1AzazeIl",
+   "roblox_id": 1670289620,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "44CresentDestroyer",
+   "roblox_id": 11259044387,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "87xyc",
+   "roblox_id": 2908627594,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "adanthegammer01",
+   "roblox_id": 7776199013,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Aeoneia",
+   "roblox_id": 1625651749,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Aguylar",
+   "roblox_id": 377880128,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Alli_pzf3k",
+   "roblox_id": 1323981279,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "alpbey4543",
+   "roblox_id": 653194648,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Arturioo116",
+   "roblox_id": 980148581,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Asperitles",
+   "roblox_id": 2048465298,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "AUTnocturnuspedrun",
+   "roblox_id": 7947058679,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "babapro200ppp7",
+   "roblox_id": 5728324494,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "babs12566",
+   "roblox_id": 1602258604,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "BaconBoi_Joker",
+   "roblox_id": 3353148028,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Basically_Ker",
+   "roblox_id": 242701942,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "beneki968",
+   "roblox_id": 1349390745,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "BloodisXD2014",
+   "roblox_id": 1592041393,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "BOBA35465",
+   "roblox_id": 1900113777,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "brawlstarsbabapri",
+   "roblox_id": 1342234256,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Ch4rliewitha4",
+   "roblox_id": 887335842,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "chrizest",
+   "roblox_id": 531385667,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "CooI_Window",
+   "roblox_id": 3687833324,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "CursedWRage",
+   "roblox_id": 7518786791,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Cut_Out46",
+   "roblox_id": 1773946740,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Desaster_123",
+   "roblox_id": 676710890,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Doraexi",
+   "roblox_id": 1610760487,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "dsfjkvhsalkjh",
+   "roblox_id": 7422655156,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Ege2021_07",
+   "roblox_id": 1654509287,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Ennacthulhum",
+   "roblox_id": 4436784478,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "ErayBeyC",
+   "roblox_id": 585463796,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Evemprean",
+   "roblox_id": 1004947020,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "FHSReaPeR",
+   "roblox_id": 3510776464,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "FoolsAndSages",
+   "roblox_id": 3293771526,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "FurunkulNectarin23",
+   "roblox_id": 8559281934,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "gigigagagogik124",
+   "roblox_id": 3998362786,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Gohdrffv",
+   "roblox_id": 1496985152,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "GrimTwists",
+   "roblox_id": 2267177924,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Gummy_Glider",
+   "roblox_id": 823423527,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "HatePowered",
+   "roblox_id": 138634190,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "HeatToast47",
+   "roblox_id": 2319108263,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "hibllblet",
+   "roblox_id": 3222235710,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "HopeLifegamerRoblox",
+   "roblox_id": 145201573,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "horrot9",
+   "roblox_id": 1491123593,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "icanthearyoulalalala",
+   "roblox_id": 1999468599,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Icer10200",
+   "roblox_id": 431400972,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "ifiogoidfgi",
+   "roblox_id": 2059269387,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "imsupersleepii",
+   "roblox_id": 3077943891,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "ironcatboy",
+   "roblox_id": 859569690,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "ItzKUZEY123",
+   "roblox_id": 2291827392,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "JustifiedHonesty",
+   "roblox_id": 2050359979,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Kevinroyale555",
+   "roblox_id": 573525901,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "KiFtArO",
+   "roblox_id": 2344623863,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Kiraz364Riys",
+   "roblox_id": 2810516313,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "KiwiLyfe",
+   "roblox_id": 484391319,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Kryptixuo",
+   "roblox_id": 483041320,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Kvysis0",
+   "roblox_id": 1214661857,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Lavr_king",
+   "roblox_id": 620793221,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "looooopycat",
+   "roblox_id": 2023227945,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "looyd7777",
+   "roblox_id": 322521403,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "LpRoLtOn",
+   "roblox_id": 1740640335,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "ludzkiepocho",
+   "roblox_id": 1552259322,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "MarcuMatei2006",
+   "roblox_id": 112332769,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Max_cat5677",
+   "roblox_id": 3516508500,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Meal_Deal07",
+   "roblox_id": 10607626285,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Mequres",
+   "roblox_id": 1058244380,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "MrEv1l",
+   "roblox_id": 108331110,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Mustafakafali2",
+   "roblox_id": 2486418297,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "NOTEROOR404",
+   "roblox_id": 1791124593,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "otakuchocola1",
+   "roblox_id": 11743075162,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "patatesiz_cips",
+   "roblox_id": 4337012704,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "pihogorhack",
+   "roblox_id": 862469631,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "programaus",
+   "roblox_id": 1015886947,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "QuAreXZS",
+   "roblox_id": 1103784018,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "R7_Gamer",
+   "roblox_id": 131352026,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Ratis_Games",
+   "roblox_id": 7327898344,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Reverse_Snow1",
+   "roblox_id": 1855485523,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "RikoMiyumi",
+   "roblox_id": 3362924653,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "rnu2287",
+   "roblox_id": 1366743139,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "RoyalDudus",
+   "roblox_id": 1612319235,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "S3ph1r4h",
+   "roblox_id": 4567626460,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "samuinfernus",
+   "roblox_id": 131348646,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "satantta",
+   "roblox_id": 1789158728,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "saxa123234",
+   "roblox_id": 103786592,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "sky123pl1",
+   "roblox_id": 470572951,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "SlixCreak14",
+   "roblox_id": 1021763805,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "SniperGod921",
+   "roblox_id": 1787979746,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "SrTrollFace248",
+   "roblox_id": 3973211942,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "The_XGuy9",
+   "roblox_id": 2035098537,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "TheGentleman0233",
+   "roblox_id": 10607405909,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "TheKharax",
+   "roblox_id": 2028910996,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "ThOnikuda",
+   "roblox_id": 1739868332,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Tu9rul_h1z",
+   "roblox_id": 5761258443,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "tusiek13",
+   "roblox_id": 678086280,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Ugori6o",
+   "roblox_id": 1466323666,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "UTcarrot_god",
+   "roblox_id": 3678504887,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Utku_Aydin",
+   "roblox_id": 337083208,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "uyuyutrtt11",
+   "roblox_id": 3331329659,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "vvqmxx",
+   "roblox_id": 1929750270,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "WarCryme",
+   "roblox_id": 2216481107,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "waslastseen",
+   "roblox_id": 9938408877,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "xdddddxdddddddxdddd",
+   "roblox_id": 729044840,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Xeno_Here",
+   "roblox_id": 703326964,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "xspagootx",
+   "roblox_id": 1177155105,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "xXEjderAgaOyundaXx",
+   "roblox_id": 705778461,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Xxsuperirior_redxX",
+   "roblox_id": 219897011,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "Zephonik",
+   "roblox_id": 10994966779,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "ztraycatto",
+   "roblox_id": 1544300427,
+   "status": "Ally",
+   "clan": "BP"
+  },
+  {
+   "username": "artemka_play338",
+   "roblox_id": 1848636140,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "bonbanchupi5",
+   "roblox_id": 5028322411,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "DDnll14",
+   "roblox_id": 1435849267,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "Fokurou_Kamisori3",
+   "roblox_id": 4531672767,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "gepa1245",
+   "roblox_id": 4412421155,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "Hage_Wagee",
+   "roblox_id": 3200861576,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "korb_loxer2",
+   "roblox_id": 4026052772,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "MEGAPUDJ221",
+   "roblox_id": 4189827602,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "Mihail_Storozev",
+   "roblox_id": 1013208378,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "mrpiskin123",
+   "roblox_id": 3491712364,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "oldtopper",
+   "roblox_id": 4182751701,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "pastorych",
+   "roblox_id": 11844546082,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "pavel_drunovoo",
+   "roblox_id": 11140047504,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "peroxidase1",
+   "roblox_id": 7012703366,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "rlub423",
+   "roblox_id": 4249209704,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "Saybronnit",
+   "roblox_id": 10468826185,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "Sokol9097480",
+   "roblox_id": 1176674002,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "SorryAboutThatAll",
+   "roblox_id": 3462048004,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "totalynothitman",
+   "roblox_id": 11785018932,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "tytiopx",
+   "roblox_id": 1660820390,
+   "status": "Ally",
+   "clan": "BP ALLIES"
+  },
+  {
+   "username": "gagatu",
+   "roblox_id": 92096818,
+   "status": "Ally",
+   "clan": "KILLERS"
+  },
+  {
+   "username": "yigiab",
+   "roblox_id": 2525845274,
+   "status": "Ally",
+   "clan": "PASSIONE"
+  },
+  {
+   "username": "NKXGalaxyy",
+   "roblox_id": 3226177555,
+   "status": "Ally",
+   "clan": "RUEN"
+  },
+  {
+   "username": "NKXSLicK",
+   "roblox_id": 1412059832,
+   "status": "Ally",
+   "clan": "RUEN"
+  },
+  {
+   "username": "114DingZhen",
+   "roblox_id": 3957728083,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "4172883828273",
+   "roblox_id": 10595170429,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "Artikas1465",
+   "roblox_id": 1582788507,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "Azura19833",
+   "roblox_id": 8023324883,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "BigBoss_Gaf",
+   "roblox_id": 448320185,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "blydw111",
+   "roblox_id": 8042196079,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "booklkook",
+   "roblox_id": 55630689,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "caychaylanthun11",
+   "roblox_id": 4397981203,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "CrystalCarbon",
+   "roblox_id": 138370130,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "Darktweetstar",
+   "roblox_id": 1159293897,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "FoltikaKutya",
+   "roblox_id": 1862194932,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "GOK_standofvanyapro",
+   "roblox_id": 10970906002,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "IAmNotCreaneet",
+   "roblox_id": 2050706387,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "InicjatorPP",
+   "roblox_id": 3683486685,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "jqhtydr",
+   "roblox_id": 7931673026,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "kaansniperdsg07",
+   "roblox_id": 581662191,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "Kurasiky",
+   "roblox_id": 5214666726,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "Levi_resu",
+   "roblox_id": 1610114267,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "NustHup",
+   "roblox_id": 1004235029,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "tarfar111",
+   "roblox_id": 1878688381,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "thekillerbase",
+   "roblox_id": 303785011,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "townliest",
+   "roblox_id": 469608465,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "VRDERRYD",
+   "roblox_id": 1003989881,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "xeiaIity",
+   "roblox_id": 1488834144,
+   "status": "Ally",
+   "clan": null
+  },
+  {
+   "username": "xYavuzmertx",
+   "roblox_id": 1127317716,
+   "status": "Ally",
+   "clan": null
+  }
+ ]
+}

@@ -1,0 +1,11 @@
+Meow of a Siamese cat - freemaster2.wav
+Creator: freemaster2
+License: CC0 1.0 Universal Public Domain Dedication
+Source: https://commons.wikimedia.org/wiki/File:Meow_of_a_Siamese_cat_-_freemaster2.wav
+Original: https://www.freesound.org/people/freemaster2/sounds/66518/
+Downloaded WAV included unchanged as meow.wav.
+meow-soft.wav is a modified version: pitch raised 2.5 semitones,
+gentle high-pass and low-pass filtering, soft saturation,
+25 ms attack and 120 ms release fades, and reduced volume.
+
+meow-1.mp3: supplied by the user for this build; included unmodified. No source or license metadata was provided.

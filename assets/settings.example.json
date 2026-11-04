@@ -1,0 +1,51 @@
+{
+  "detection_mode": "local",
+  "presence": {
+    "own_username": "",
+    "own_user_id": 0,
+    "poll_interval_seconds": 15,
+    "detect_server_from_logs": true,
+    "log_directory": "",
+    "server_id": "",
+    "notify_rejoins": true
+  },
+  "enabled": true,
+  "notify_enemies": true,
+  "notify_allies": false,
+  "members_file": "players.json",
+  "sound": {
+    "enabled": true,
+    "enemies_only": false,
+    "volume": 0.45,
+    "file": "meow-1.mp3"
+  },
+  "scan": {
+    "interval_ms": 1200,
+    "confirmations": 2,
+    "scale": 2,
+    "only_when_roblox_foreground": true,
+    "repeat_after_seconds": 0,
+    "region": null
+  },
+  "notification": {
+    "corner": "bottom-right",
+    "duration_seconds": 5,
+    "width": 360,
+    "margin": 24,
+    "opacity": 0.97,
+    "background": "#F5F5F7",
+    "text": "#1D1D1F",
+    "enemy_accent": "#E5484D",
+    "ally_accent": "#30A46C",
+    "show_clan": true,
+    "max_visible": 8
+  },
+  "local": {
+    "poll_interval_ms": 100,
+    "burst_debounce_ms": 750,
+    "initial_scan_seconds": 3
+  },
+  "appearance": {
+    "dark_mode": false
+  }
+}

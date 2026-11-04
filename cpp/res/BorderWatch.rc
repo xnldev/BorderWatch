@@ -1,0 +1,65 @@
+#include "../include/Resource.h"
+#include <windows.h>
+
+IDI_APP_ICON ICON "../../assets/BorderWatch.ico"
+
+IDR_SOUND_MEOW_1    RCDATA "../../assets/meow-1.mp3"
+IDR_SOUND_PING      RCDATA "../../assets/ping.wav"
+IDR_SOUND_MEOW_SOFT RCDATA "../../assets/meow-soft.wav"
+IDR_SOUND_MEOW      RCDATA "../../assets/meow.wav"
+IDR_JSON_PLAYERS    RCDATA "../../assets/players.json"
+IDR_JSON_SETTINGS   RCDATA "../../assets/settings.example.json"
+
+VS_VERSION_INFO VERSIONINFO
+FILEVERSION     5,0,0,0
+PRODUCTVERSION  5,0,0,0
+FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
+#ifdef _DEBUG
+FILEFLAGS       VS_FF_DEBUG
+#else
+FILEFLAGS       0x0L
+#endif
+FILEOS          VOS_NT_WINDOWS32
+FILETYPE        VFT_APP
+FILESUBTYPE     VFT2_UNKNOWN
+BEGIN
+    BLOCK "StringFileInfo"
+    BEGIN
+        BLOCK "040904b0"
+        BEGIN
+            VALUE "CompanyName",      "BorderWatch"
+            VALUE "FileDescription",  "BorderWatch Native"
+            VALUE "FileVersion",      "5.0.0.0"
+            VALUE "InternalName",     "BorderWatch"
+            VALUE "LegalCopyright",   "2026 BorderWatch"
+            VALUE "OriginalFilename", "BorderWatch.exe"
+            VALUE "ProductName",      "BorderWatch"
+            VALUE "ProductVersion",   "5.0.0.0"
+        END
+    END
+    BLOCK "VarFileInfo"
+    BEGIN
+        VALUE "Translation", 0x409, 1200
+    END
+END
+
+// Enable Visual Styles (Common Controls 6.0) & DPI Awareness
+1 24
+BEGIN
+    "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>\r\n"
+    "<assembly xmlns=""urn:schemas-microsoft-com:asm.v1"" manifestVersion=""1.0"">\r\n"
+    "  <assemblyIdentity version=""5.0.0.0"" processorArchitecture=""*"" name=""BorderWatch"" type=""win32""/>\r\n"
+    "  <description>BorderWatch Native</description>\r\n"
+    "  <dependency>\r\n"
+    "    <dependentAssembly>\r\n"
+    "      <assemblyIdentity type=""win32"" name=""Microsoft.Windows.Common-Controls"" version=""6.0.0.0"" processorArchitecture=""*"" publicKeyToken=""6595b64144ccf1df"" language=""*""/>\r\n"
+    "    </dependentAssembly>\r\n"
+    "  </dependency>\r\n"
+    "  <application xmlns=""urn:schemas-microsoft-com:asm.v3"">\r\n"
+    "    <windowsSettings>\r\n"
+    "      <dpiAware xmlns=""http://schemas.microsoft.com/SMI/2005/WindowsSettings"">true/pm</dpiAware>\r\n"
+    "      <dpiAwareness xmlns=""http://schemas.microsoft.com/SMI/2016/WindowsSettings"">PerMonitorV2, PerMonitor</dpiAwareness>\r\n"
+    "    </windowsSettings>\r\n"
+    "  </application>\r\n"
+    "</assembly>\r\n"
+END
