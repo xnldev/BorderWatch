@@ -104,6 +104,9 @@ bool HttpGetBytes(const std::wstring& url, std::vector<uint8_t>& outBytes, DWORD
         return false;
     }
 
+    DWORD redirectPolicy = WINHTTP_OPTION_REDIRECT_POLICY_ALWAYS;
+    WinHttpSetOption(hRequest, WINHTTP_OPTION_REDIRECT_POLICY, &redirectPolicy, sizeof(redirectPolicy));
+
     const wchar_t* headers = L"User-Agent: BorderWatch-Native/4.8\r\nAccept: application/vnd.github+json, application/octet-stream, */*\r\n";
     BOOL bResults = WinHttpSendRequest(hRequest, headers, (DWORD)-1L,
                                         WINHTTP_NO_REQUEST_DATA, 0, 0, 0);
@@ -460,12 +463,18 @@ void MainWindow::CheckForAppUpdates(bool manualTrigger) {
 
         {
             std::lock_guard<std::mutex> lock(m_githubMutex);
-            if (ok && IsNewerVersion(foundVersion, BW_APP_VERSION) && !foundDownloadUrl.empty()) {
-                m_updateAvailable = true;
-                m_latestVersion = foundVersion;
-                m_updateDownloadUrl = foundDownloadUrl;
-                m_updateStatusMsg = L"New version " + foundVersion + L" available! Click 'Update' to install.";
-            } else if (ok || status == 404) {
+            if (ok && IsNewerVersion(foundVersion, BW_APP_VERSION)) {
+                if (!foundDownloadUrl.empty()) {
+                    m_updateAvailable = true;
+                    m_latestVersion = foundVersion;
+                    m_updateDownloadUrl = foundDownloadUrl;
+                    m_updateStatusMsg = L"New version " + foundVersion + L" available! Click 'Update' to install.";
+                } else {
+                    m_updateAvailable = false;
+                    m_latestVersion = foundVersion;
+                    m_updateStatusMsg = L"New " + foundVersion + L" found on GitHub, but no .exe was attached to the release!";
+                }
+            } else if (ok) {
                 m_updateAvailable = false;
                 m_updateStatusMsg = L"\u2713 BorderWatch v" + std::wstring(BW_APP_VERSION) + L" is up to date.";
             } else {

@@ -45,6 +45,9 @@ Config Config::LoadFromString(const std::string& json) {
     }
     if ((v = yyjson_obj_get(root, "update_url")) && yyjson_is_str(v)) {
         std::wstring url = Utils::Utf8ToWide(yyjson_get_str(v));
+        if (url.find(L"agentyautja/borderpatrol-list") != std::wstring::npos) {
+            url = L"https://api.github.com/repos/xnldev/BorderWatch/releases/latest";
+        }
         if (!url.empty()) cfg.update_url = url;
     }
 
