@@ -19,6 +19,7 @@ public:
     void UpdateData(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& webLink = L"", const std::wstring& deepLink = L"");
     void ApplyTheme(const Config& config);
     void RelayoutControls(int width, int height);
+    void SetScanner(LogScanner* scanner) { m_scanner = scanner; }
     HWND GetHWND() const { return m_hWnd; }
 
 private:
@@ -28,8 +29,6 @@ private:
 
     void ApplyFilter();
     void CopySelectedUsername();
-    void CopyServerWebLink();
-    void CopyServerDeepLink();
     void OpenSelectedProfile();
     void ShowStatusMessage(const std::wstring& msg);
 
@@ -45,13 +44,13 @@ private:
     HWND m_hSearchEdit = nullptr;
     HWND m_hProfileBtn = nullptr;
     HWND m_hCopyBtn = nullptr;
-    HWND m_hWebLinkBtn = nullptr;
-    HWND m_hDeepLinkBtn = nullptr;
+    HWND m_hClearBtn = nullptr;
     HWND m_hRefreshBtn = nullptr;
     HWND m_hTooltip = nullptr;
     HFONT m_hFontRegular = nullptr;
     HFONT m_hFontBold = nullptr;
 
+    LogScanner* m_scanner = nullptr;
     bool m_darkMode = false;
     std::wstring m_summaryText;
     std::wstring m_copiedText;

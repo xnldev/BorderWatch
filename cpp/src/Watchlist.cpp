@@ -324,3 +324,8 @@ size_t Watchlist::Count() const {
     std::lock_guard<std::mutex> lock(m_mutex);
     return m_players.size();
 }
+
+std::vector<PlayerRecord> Watchlist::GetAllPlayers() const {
+    std::lock_guard<std::mutex> lock(m_mutex);
+    return m_players;
+}

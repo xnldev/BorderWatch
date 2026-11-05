@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-#define BW_APP_VERSION L"5.0.0"
+#define BW_APP_VERSION L"5.0.1"
 
 struct Config {
     bool enabled = true;

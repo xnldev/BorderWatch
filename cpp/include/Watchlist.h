@@ -24,6 +24,7 @@ public:
     bool FindByUsername(const std::wstring& username, PlayerRecord& outRecord) const;
     bool FindById(uint64_t robloxId, PlayerRecord& outRecord) const;
     size_t Count() const;
+    std::vector<PlayerRecord> GetAllPlayers() const;
 
 private:
     static std::wstring ToLower(const std::wstring& str);

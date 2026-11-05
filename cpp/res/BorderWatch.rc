@@ -11,8 +11,8 @@ IDR_JSON_PLAYERS    RCDATA "../../assets/players.json"
 IDR_JSON_SETTINGS   RCDATA "../../assets/settings.example.json"
 
 VS_VERSION_INFO VERSIONINFO
-FILEVERSION     5,0,0,0
-PRODUCTVERSION  5,0,0,0
+FILEVERSION     5,0,1,0
+PRODUCTVERSION  5,0,1,0
 FILEFLAGSMASK   VS_FFI_FILEFLAGSMASK
 #ifdef _DEBUG
 FILEFLAGS       VS_FF_DEBUG
@@ -29,12 +29,12 @@ BEGIN
         BEGIN
             VALUE "CompanyName",      "BorderWatch"
             VALUE "FileDescription",  "BorderWatch Native"
-            VALUE "FileVersion",      "5.0.0.0"
+            VALUE "FileVersion",      "5.0.1.0"
             VALUE "InternalName",     "BorderWatch"
             VALUE "LegalCopyright",   "2026 BorderWatch"
             VALUE "OriginalFilename", "BorderWatch.exe"
             VALUE "ProductName",      "BorderWatch"
-            VALUE "ProductVersion",   "5.0.0.0"
+            VALUE "ProductVersion",   "5.0.1.0"
         END
     END
     BLOCK "VarFileInfo"
@@ -48,7 +48,7 @@ END
 BEGIN
     "<?xml version=""1.0"" encoding=""UTF-8"" standalone=""yes""?>\r\n"
     "<assembly xmlns=""urn:schemas-microsoft-com:asm.v1"" manifestVersion=""1.0"">\r\n"
-    "  <assemblyIdentity version=""5.0.0.0"" processorArchitecture=""*"" name=""BorderWatch"" type=""win32""/>\r\n"
+    "  <assemblyIdentity version=""5.0.1.0"" processorArchitecture=""*"" name=""BorderWatch"" type=""win32""/>\r\n"
     "  <description>BorderWatch Native</description>\r\n"
     "  <dependency>\r\n"
     "    <dependentAssembly>\r\n"

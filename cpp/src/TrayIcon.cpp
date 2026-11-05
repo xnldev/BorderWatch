@@ -19,7 +19,7 @@ bool TrayIcon::Create() {
     m_nid.hIcon = LoadIconW(m_hInstance, MAKEINTRESOURCEW(IDI_APP_ICON));
     if (!m_nid.hIcon) m_nid.hIcon = LoadIconW(nullptr, (LPCWSTR)IDI_INFORMATION);
 
-    wcscpy_s(m_nid.szTip, L"BorderWatch v5.0.0 (Tab + I)");
+    wcscpy_s(m_nid.szTip, L"BorderWatch v5.0.1 (Tab + I)");
 
     m_created = Shell_NotifyIconW(NIM_ADD, &m_nid);
     return m_created;

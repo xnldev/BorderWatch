@@ -26,8 +26,7 @@ enum DetectedControlId {
     IDC_EDT_SEARCH = 204,
     IDC_BTN_PROFILE = 205,
     IDC_BTN_COPY = 206,
-    IDC_BTN_WEB_LINK = 207,
-    IDC_BTN_DEEP_LINK = 208,
+    IDC_BTN_CLEAR_PLAYERS = 209,
     IDC_BTN_DET_TOP_MIN = 210,
     IDC_BTN_DET_TOP_CLOSE = 211
 };
@@ -38,7 +37,8 @@ enum ContextMenuId {
     IDM_CTX_COPY_USERNAME = 3003,
     IDM_CTX_COPY_DISPLAY_NAME = 3004,
     IDM_CTX_COPY_USER_ID = 3005,
-    IDM_CTX_COPY_FULL_INFO = 3006
+    IDM_CTX_COPY_FULL_INFO = 3006,
+    IDM_CTX_REMOVE_PLAYER = 3007
 };
 
 static void OpenRobloxProfile(const std::wstring& username, uint64_t userId = 0) {
@@ -65,18 +65,10 @@ static LRESULT CALLBACK HandCursorBtnSubclass(HWND hWnd, UINT msg, WPARAM wParam
         if (!GetPropW(hWnd, L"Hover")) {
             SetPropW(hWnd, L"Hover", (HANDLE)1);
             InvalidateRect(hWnd, nullptr, FALSE);
-            if (GetDlgCtrlID(hWnd) == IDC_BTN_DEEP_LINK) {
-                HWND hParent = GetParent(hWnd);
-                if (hParent) SendMessageW(hParent, WM_USER + 250, 1, 0);
-            }
         }
         break;
     }
     case WM_MOUSELEAVE:
-        if (GetDlgCtrlID(hWnd) == IDC_BTN_DEEP_LINK) {
-            HWND hParent = GetParent(hWnd);
-            if (hParent) SendMessageW(hParent, WM_USER + 250, 0, 0);
-        }
         RemovePropW(hWnd, L"Hover");
         InvalidateRect(hWnd, nullptr, FALSE);
         break;
@@ -113,24 +105,6 @@ void DetectedWindow::CopySelectedUsername() {
         ShowStatusMessage(L"Copied '" + p.username + L"' to clipboard!");
     } else {
         ShowStatusMessage(L"Select a player first.");
-    }
-}
-
-void DetectedWindow::CopyServerWebLink() {
-    if (!m_serverWebLink.empty()) {
-        Utils::CopyTextToClipboard(m_hWnd, m_serverWebLink);
-        ShowStatusMessage(L"Copied web link (https://)!");
-    } else {
-        ShowStatusMessage(L"No active Roblox server link yet.");
-    }
-}
-
-void DetectedWindow::CopyServerDeepLink() {
-    if (!m_serverDeepLink.empty()) {
-        Utils::CopyTextToClipboard(m_hWnd, m_serverDeepLink);
-        ShowStatusMessage(L"Copied! Press Win+R, paste & Enter");
-    } else {
-        ShowStatusMessage(L"No active Roblox server link yet.");
     }
 }
 
@@ -293,6 +267,8 @@ LRESULT CALLBACK DetectedWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wParam
                     }
                     AppendMenuW(hMenu, MF_SEPARATOR, 0, nullptr);
                     AppendMenuW(hMenu, MF_STRING, IDM_CTX_COPY_FULL_INFO, L"Copy Full Details");
+                    AppendMenuW(hMenu, MF_SEPARATOR, 0, nullptr);
+                    AppendMenuW(hMenu, MF_STRING, IDM_CTX_REMOVE_PLAYER, L"Remove from list (Player left)");
 
                     int cmd = TrackPopupMenu(hMenu, TPM_LEFTALIGN | TPM_RIGHTBUTTON | TPM_RETURNCMD, pt.x, pt.y, 0, hWnd, nullptr);
                     DestroyMenu(hMenu);
@@ -325,6 +301,19 @@ LRESULT CALLBACK DetectedWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wParam
                         info += L" (" + p.status + (p.clan.empty() ? L"" : L" / " + p.clan) + L") seen at " + p.last_seen_time;
                         Utils::CopyTextToClipboard(self->m_hWnd, info);
                         self->ShowStatusMessage(L"\u2713 Copied full player details!");
+                    } else if (cmd == IDM_CTX_REMOVE_PLAYER) {
+                        std::wstring removedUser = p.username;
+                        if (self->m_scanner) {
+                            self->m_scanner->RemoveDetectedPlayer(removedUser);
+                        }
+                        for (auto it = self->m_allPlayers.begin(); it != self->m_allPlayers.end(); ++it) {
+                            if (_wcsicmp(it->username.c_str(), removedUser.c_str()) == 0) {
+                                self->m_allPlayers.erase(it);
+                                break;
+                            }
+                        }
+                        self->ApplyFilter();
+                        self->ShowStatusMessage(L"\u2713 Removed " + removedUser + L" from list");
                     }
                 }
             }
@@ -894,21 +883,13 @@ void DetectedWindow::Show(const std::vector<DetectedPlayer>& players, const std:
         );
         SetWindowLongPtrW(m_hCopyBtn, GWLP_WNDPROC, (LONG_PTR)HandCursorBtnSubclass);
 
-        m_hWebLinkBtn = CreateWindowExW(
-            0, L"BUTTON", L"Web Link",
+        m_hClearBtn = CreateWindowExW(
+            0, L"BUTTON", L"Clear Players",
             WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-            237, 476, 95, 32,
-            m_hWnd, (HMENU)IDC_BTN_WEB_LINK, m_hInstance, nullptr
+            0, 0, 0, 0,
+            m_hWnd, (HMENU)IDC_BTN_CLEAR_PLAYERS, m_hInstance, nullptr
         );
-        SetWindowLongPtrW(m_hWebLinkBtn, GWLP_WNDPROC, (LONG_PTR)HandCursorBtnSubclass);
-
-        m_hDeepLinkBtn = CreateWindowExW(
-            0, L"BUTTON", L"Deep Link",
-            WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-            339, 476, 95, 32,
-            m_hWnd, (HMENU)IDC_BTN_DEEP_LINK, m_hInstance, nullptr
-        );
-        SetWindowLongPtrW(m_hDeepLinkBtn, GWLP_WNDPROC, (LONG_PTR)HandCursorBtnSubclass);
+        SetWindowLongPtrW(m_hClearBtn, GWLP_WNDPROC, (LONG_PTR)HandCursorBtnSubclass);
 
         m_hRefreshBtn = CreateWindowExW(
             0, L"BUTTON", L"Refresh",
@@ -918,7 +899,7 @@ void DetectedWindow::Show(const std::vector<DetectedPlayer>& players, const std:
         );
         SetWindowLongPtrW(m_hRefreshBtn, GWLP_WNDPROC, (LONG_PTR)HandCursorBtnSubclass);
 
-        // tooltip for deep link n web link
+        // tooltip for buttons
         m_hTooltip = CreateWindowExW(
             WS_EX_TOPMOST, TOOLTIPS_CLASSW, nullptr,
             WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
@@ -931,13 +912,18 @@ void DetectedWindow::Show(const std::vector<DetectedPlayer>& players, const std:
             TOOLINFOW ti = { sizeof(TOOLINFOW) };
             ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
             ti.hwnd = m_hWnd;
-            ti.uId = (UINT_PTR)m_hDeepLinkBtn;
-            ti.lpszText = const_cast<LPWSTR>(L"Copy roblox:// Deep Link.\r\nTip: Press Win + R, paste (Ctrl+V) and press Enter to launch directly into this server!");
+
+            ti.uId = (UINT_PTR)m_hClearBtn;
+            ti.lpszText = const_cast<LPWSTR>(L"Clear all detected players from the current session.");
             SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
 
-            ti.uId = (UINT_PTR)m_hWebLinkBtn;
-            ti.lpszText = const_cast<LPWSTR>(L"Copy https:// Web Server Link to open in your browser.");
-            SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
+            TOOLINFOW tiBadge = { sizeof(TOOLINFOW) };
+            tiBadge.uFlags = TTF_SUBCLASS;
+            tiBadge.hwnd = m_hWnd;
+            tiBadge.uId = 2099;
+            tiBadge.rect = { 16, 12, 56, 52 };
+            tiBadge.lpszText = const_cast<LPWSTR>(L"Click [B] to open full Watchlist Database table (all players & sorting).");
+            SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&tiBadge);
         }
     }
 
@@ -971,19 +957,20 @@ void DetectedWindow::RelayoutControls(int w, int h) {
         InvalidateRect(m_hTable, nullptr, FALSE);
     }
     if (m_hProfileBtn && IsWindow(m_hProfileBtn)) {
-        SetWindowPos(m_hProfileBtn, nullptr, 18, btnY, 105, 32, SWP_NOZORDER);
+        SetWindowPos(m_hProfileBtn, nullptr, 18, btnY, 110, 32, SWP_NOZORDER);
     }
     if (m_hCopyBtn && IsWindow(m_hCopyBtn)) {
-        SetWindowPos(m_hCopyBtn, nullptr, 130, btnY, 100, 32, SWP_NOZORDER);
+        SetWindowPos(m_hCopyBtn, nullptr, 136, btnY, 100, 32, SWP_NOZORDER);
     }
-    if (m_hWebLinkBtn && IsWindow(m_hWebLinkBtn)) {
-        SetWindowPos(m_hWebLinkBtn, nullptr, 237, btnY, 95, 32, SWP_NOZORDER);
-    }
-    if (m_hDeepLinkBtn && IsWindow(m_hDeepLinkBtn)) {
-        SetWindowPos(m_hDeepLinkBtn, nullptr, 339, btnY, 95, 32, SWP_NOZORDER);
+    int refreshW = 85;
+    int clearW = 110;
+    int refreshX = w - 18 - refreshW;
+    int clearX = refreshX - 10 - clearW;
+    if (m_hClearBtn && IsWindow(m_hClearBtn)) {
+        SetWindowPos(m_hClearBtn, nullptr, clearX, btnY, clearW, 32, SWP_NOZORDER);
     }
     if (m_hRefreshBtn && IsWindow(m_hRefreshBtn)) {
-        SetWindowPos(m_hRefreshBtn, nullptr, std::max(441, w - 18 - 95), btnY, 95, 32, SWP_NOZORDER);
+        SetWindowPos(m_hRefreshBtn, nullptr, refreshX, btnY, refreshW, 32, SWP_NOZORDER);
     }
     InvalidateRect(m_hWnd, nullptr, TRUE);
 }
@@ -1047,12 +1034,40 @@ LRESULT CALLBACK DetectedWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
             return HTCLIENT;
         }
 
+        // allow [B] badge icon to receive normal clicks
+        if (pt.y >= 12 && pt.y <= 52 && pt.x >= 16 && pt.x <= 56) {
+            return HTCLIENT;
+        }
+
         // dragging
         if (pt.y <= 58) {
             return HTCAPTION;
         }
 
         return HTCLIENT;
+    }
+    case WM_SETCURSOR: {
+        if (LOWORD(lParam) == HTCLIENT && self) {
+            POINT pt;
+            GetCursorPos(&pt);
+            ScreenToClient(hWnd, &pt);
+            if (pt.y >= 12 && pt.y <= 52 && pt.x >= 16 && pt.x <= 56) {
+                SetCursor(LoadCursor(nullptr, IDC_HAND));
+                return TRUE;
+            }
+        }
+        break;
+    }
+    case WM_LBUTTONDOWN: {
+        int x = (short)LOWORD(lParam);
+        int y = (short)HIWORD(lParam);
+        if (y >= 12 && y <= 52 && x >= 16 && x <= 56) {
+            if (self && self->m_hParent) {
+                SendMessageW(self->m_hParent, WM_COMMAND, MAKEWPARAM(2099, 0), 0);
+            }
+            return 0;
+        }
+        break;
     }
     case WM_PAINT: {
         PAINTSTRUCT ps;
@@ -1177,20 +1192,6 @@ LRESULT CALLBACK DetectedWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
         if (wParam == 999 && self) {
             KillTimer(hWnd, 999);
             self->m_copiedText.clear();
-            RECT rc;
-            GetClientRect(hWnd, &rc);
-            RECT rcHeader = { 200, 8, rc.right - 44, 54 };
-            InvalidateRect(hWnd, &rcHeader, FALSE);
-        }
-        return 0;
-    }
-    case WM_USER + 250: {
-        if (self) {
-            if (wParam == 1) {
-                self->m_copiedText = L"Tip: Win + R \u2192 Ctrl+V \u2192 Enter";
-            } else if (self->m_copiedText.find(L"Tip:") != std::wstring::npos) {
-                self->m_copiedText.clear();
-            }
             RECT rc;
             GetClientRect(hWnd, &rc);
             RECT rcHeader = { 200, 8, rc.right - 44, 54 };
@@ -1350,11 +1351,17 @@ LRESULT CALLBACK DetectedWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
             case IDC_BTN_COPY:
                 self->CopySelectedUsername();
                 break;
-            case IDC_BTN_WEB_LINK:
-                self->CopyServerWebLink();
-                break;
-            case IDC_BTN_DEEP_LINK:
-                self->CopyServerDeepLink();
+            case IDC_BTN_CLEAR_PLAYERS:
+                if (self->m_scanner) {
+                    self->m_scanner->ClearDetectedPlayers();
+                }
+                self->m_allPlayers.clear();
+                self->m_filteredPlayers.clear();
+                self->m_selectedRow = -1;
+                self->m_summaryText = L"0 enemies / 0 allies detected in this session's log. Cleared.";
+                InvalidateRect(self->m_hTable, nullptr, FALSE);
+                InvalidateRect(self->m_hWnd, nullptr, FALSE);
+                self->ShowStatusMessage(L"\u2713 Cleared session players list");
                 break;
             case IDC_BTN_REFRESH:
                 SendMessageW(self->m_hParent, WM_COMMAND, MAKEWPARAM(2001, 0), 0);

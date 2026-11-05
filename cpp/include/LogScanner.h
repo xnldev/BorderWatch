@@ -46,6 +46,9 @@ public:
     void UpdateConfig(const Config& config);
     void Step();
     void ResetSession();
+    void ClearDetectedPlayers();
+    void RemoveDetectedPlayer(const std::wstring& username);
+    void PruneInactivePlayersUnlocked(std::chrono::seconds timeoutSec = std::chrono::seconds(600));
     void SetPaused(bool paused) { m_paused = paused; }
     bool IsPaused() const { return m_paused; }
 

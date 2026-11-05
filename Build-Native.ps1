@@ -32,6 +32,7 @@ $sources = @(
     "`"$cppDir\src\LogScanner.cpp`"",
     "`"$cppDir\src\ToastManager.cpp`"",
     "`"$cppDir\src\DetectedWindow.cpp`"",
+    "`"$cppDir\src\WatchlistWindow.cpp`"",
     "`"$cppDir\src\StartupManager.cpp`"",
     "`"$cppDir\src\HotkeyManager.cpp`"",
     "`"$cppDir\src\TrayIcon.cpp`"",

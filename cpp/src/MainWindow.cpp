@@ -291,8 +291,10 @@ bool MainWindow::Create() {
     // force frame update
     SetWindowPos(m_hWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
 
-    // detected window
+    // detected window and watchlist window
     m_detectedWnd = std::make_unique<DetectedWindow>(m_hInstance, m_hWnd);
+    m_detectedWnd->SetScanner(m_scanner.get());
+    m_watchlistWnd = std::make_unique<WatchlistWindow>(m_hInstance, m_hWnd);
     if (m_toasts) {
         m_toasts->SetParentWindow(m_hWnd);
     }
@@ -719,6 +721,14 @@ void MainWindow::CreateControls() {
         ti.uId = (UINT_PTR)m_hPreviewAllyBtn;
         ti.lpszText = const_cast<LPWSTR>(L"Preview Ally alert sound & toast notification.");
         SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
+
+        TOOLINFOW tiBadge = { sizeof(TOOLINFOW) };
+        tiBadge.uFlags = TTF_SUBCLASS;
+        tiBadge.hwnd = m_hWnd;
+        tiBadge.uId = 1099;
+        tiBadge.rect = { 18, 12, 62, 56 };
+        tiBadge.lpszText = const_cast<LPWSTR>(L"Click [B] to open full Watchlist Database table (all players & sorting).");
+        SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&tiBadge);
     }
 }
 
@@ -1206,6 +1216,9 @@ void MainWindow::ApplyTheme() {
     if (m_detectedWnd) {
         m_detectedWnd->ApplyTheme(m_config);
     }
+    if (m_watchlistWnd) {
+        m_watchlistWnd->ApplyTheme(m_config);
+    }
 }
 
 void MainWindow::SaveConfigFromControls() {
@@ -1387,6 +1400,14 @@ void MainWindow::ShowPanel() {
 void MainWindow::HidePanel() {
     ShowWindow(m_hWnd, SW_HIDE);
     if (m_detectedWnd) m_detectedWnd->Hide();
+    if (m_watchlistWnd) m_watchlistWnd->Hide();
+}
+
+void MainWindow::OpenWatchlistWindow() {
+    if (!m_watchlistWnd) {
+        m_watchlistWnd = std::make_unique<WatchlistWindow>(m_hInstance, m_hWnd);
+    }
+    m_watchlistWnd->Show(m_watchlist.GetAllPlayers(), m_config);
 }
 
 void MainWindow::ToggleVisibility() {
@@ -1506,17 +1527,41 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
             return HTCLIENT;
         }
 
+        // allow badge icon to receive client clicks
+        if (pt.y >= 12 && pt.y <= 56 && pt.x >= 18 && pt.x <= 62) {
+            return HTCLIENT;
+        }
+
         if (pt.y <= 58) {
             return HTCAPTION;
         }
 
         return HTCLIENT;
     }
+    case WM_SETCURSOR: {
+        if (LOWORD(lParam) == HTCLIENT) {
+            POINT pt;
+            GetCursorPos(&pt);
+            ScreenToClient(hWnd, &pt);
+            if (pt.x >= 18 && pt.x <= 62 && pt.y >= 12 && pt.y <= 56) {
+                SetCursor(LoadCursor(nullptr, IDC_HAND));
+                return TRUE;
+            }
+        }
+        break;
+    }
     case WM_ERASEBKGND:
         return 1;
     case WM_LBUTTONDOWN: {
         int x = (short)LOWORD(lParam);
         int y = (short)HIWORD(lParam);
+
+        // click on badge icon opens full watchlist database table
+        if (x >= 18 && x <= 62 && y >= 12 && y <= 56) {
+            OpenWatchlistWindow();
+            return 0;
+        }
+
         if (y <= 58 && x < 495) {
             ReleaseCapture();
             SendMessageW(hWnd, WM_NCLBUTTONDOWN, HTCAPTION, 0);
@@ -1595,6 +1640,9 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
             m_githubText = m_githubStatusMsg;
         }
         UpdateStatusDisplay();
+        if (m_watchlistWnd && m_watchlistWnd->IsVisible()) {
+            m_watchlistWnd->UpdateData(m_watchlist.GetAllPlayers(), m_config);
+        }
         if (m_hWnd && IsWindow(m_hWnd)) {
             RECT rcClient;
             GetClientRect(m_hWnd, &rcClient);
@@ -1798,8 +1846,14 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
             std::wstring summary = std::to_wstring(enemies) + L" enemies / " + std::to_wstring(allies) +
                                     L" allies detected in this session's log. Updated " + m_scanner->GetLastScanTime() + L".";
             m_detectedWnd->UpdateData(players, summary, m_config, m_scanner->GetServerWebLink(), m_scanner->GetServerDeepLink());
+            if (m_watchlistWnd && m_watchlistWnd->IsVisible()) {
+                m_watchlistWnd->UpdateData(m_watchlist.GetAllPlayers(), m_config);
+            }
             break;
         }
+        case 2099:
+            OpenWatchlistWindow();
+            break;
         }
         return 0;
     }

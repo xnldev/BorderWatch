@@ -87,6 +87,51 @@ void LogScanner::ResetSession() {
     ResetSessionUnlocked();
 }
 
+void LogScanner::ClearDetectedPlayers() {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    m_observed.clear();
+    m_alertedNames.clear();
+    m_alertedIds.clear();
+    m_seenNames.clear();
+    m_coverage = L"0 watchlist matches / 0 names checked / session cleared";
+}
+
+void LogScanner::RemoveDetectedPlayer(const std::wstring& username) {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    std::wstring lower = username;
+    std::transform(lower.begin(), lower.end(), lower.begin(), ::towlower);
+    m_observed.erase(lower);
+    m_alertedNames.erase(lower);
+    m_seenNames.erase(lower);
+    for (auto it = m_observed.begin(); it != m_observed.end(); ) {
+        if (_wcsicmp(it->second.username.c_str(), username.c_str()) == 0) {
+            m_alertedNames.erase(it->first);
+            m_alertedIds.erase(it->second.user_id);
+            it = m_observed.erase(it);
+        } else {
+            ++it;
+        }
+    }
+}
+
+void LogScanner::PruneInactivePlayersUnlocked(std::chrono::seconds timeoutSec) {
+    if (m_observed.empty()) return;
+    auto nowUtc = std::chrono::system_clock::now();
+    for (auto it = m_observed.begin(); it != m_observed.end(); ) {
+        if (it->second.last_seen_utc.time_since_epoch().count() > 0) {
+            auto age = std::chrono::duration_cast<std::chrono::seconds>(nowUtc - it->second.last_seen_utc);
+            if (age > timeoutSec) {
+                // Player inactive for > timeoutSec (likely left the server)
+                m_alertedNames.erase(it->first);
+                m_alertedIds.erase(it->second.user_id);
+                it = m_observed.erase(it);
+                continue;
+            }
+        }
+        ++it;
+    }
+}
+
 std::wstring LogScanner::GetCurrentTimestampStr() {
     SYSTEMTIME st;
     GetLocalTime(&st);
@@ -806,6 +851,34 @@ void LogScanner::ProcessLogData(const std::string& text, bool isHistorical) {
         if (len > 0) {
             std::string line = text.substr(lineStart, len);
 
+            // Fast disconnect / server leave check
+            if (line.find("Client:Disconnect") != std::string::npos ||
+                line.find("Disconnected from server") != std::string::npos ||
+                line.find("leaveUGCGameInternal") != std::string::npos) {
+                m_observed.clear();
+                m_seenNames.clear();
+                m_alertedNames.clear();
+                m_alertedIds.clear();
+                m_currentServerId.clear();
+                m_status = L"Disconnected from server";
+                lineStart = (nlPos == std::string::npos) ? textLen : nlPos + 1;
+                continue;
+            }
+
+            if (!isHistorical && (line.find("Connecting to ") != std::string::npos ||
+                                  line.find("Creating connection to ") != std::string::npos ||
+                                  line.find("Connection accepted from ") != std::string::npos ||
+                                  line.find("Replicator created for player ") != std::string::npos)) {
+                // Joining a new server instance - wipe old server players
+                m_observed.clear();
+                m_seenNames.clear();
+                m_alertedNames.clear();
+                m_alertedIds.clear();
+                m_phase = Phase::Initial;
+                m_phaseUntil = nowSteady + std::chrono::milliseconds(500);
+                m_status = L"Joining new server...";
+            }
+
             // fast session check
             size_t joinPos = line.find("Joining game");
             if (joinPos == std::string::npos) joinPos = line.find("gameInstanceId");
@@ -1184,6 +1257,7 @@ std::vector<DetectionEvent> LogScanner::DequeueEvents() {
 
 std::vector<DetectedPlayer> LogScanner::GetDetectedPlayers() const {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    const_cast<LogScanner*>(this)->PruneInactivePlayersUnlocked(std::chrono::seconds(600)); // 10 min inactivity timeout
     std::vector<DetectedPlayer> players;
     players.reserve(m_observed.size());
     for (const auto& pair : m_observed) {

@@ -14,6 +14,7 @@
 #include "AudioPlayer.h"
 #include "ToastManager.h"
 #include "DetectedWindow.h"
+#include "WatchlistWindow.h"
 #include "TrayIcon.h"
 #include "ModernControls.h"
 
@@ -52,6 +53,7 @@ private:
     void EnsureAnimationTimer();
     void CopyServerWebLink();
     void CopyServerDeepLink();
+    void OpenWatchlistWindow();
     void SetSaveStatusText(const std::wstring& text, int autoClearMs = 2800);
     void DrawWindowBackground(HDC hdc, int width, int height);
     void DrawModernButton(LPDRAWITEMSTRUCT dis);
@@ -67,6 +69,7 @@ private:
     std::unique_ptr<AudioPlayer> m_audio;
     std::unique_ptr<ToastManager> m_toasts;
     std::unique_ptr<DetectedWindow> m_detectedWnd;
+    std::unique_ptr<WatchlistWindow> m_watchlistWnd;
     std::unique_ptr<TrayIcon> m_tray;
 
     std::thread m_githubThread;

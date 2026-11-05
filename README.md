@@ -1,6 +1,6 @@
-# BorderWatch 5.0 source (Native C++ Rewrite)
+# BorderWatch 5.0.1 source (Native C++ Rewrite)
 
-This is the shareable source for BorderWatch 5.0, rewritten completely in native C++20. This rewrite eliminates all external runtime dependencies (PowerShell and .NET), making the application significantly more optimized, instantaneous to launch, and lightweight (~6 MB RAM, 0.0% CPU when idle).
+This is the shareable source for BorderWatch 5.0.1, rewritten completely in native C++17/20. This rewrite eliminates all external runtime dependencies (PowerShell and .NET), making the application significantly more optimized, instantaneous to launch, and lightweight (~6 MB RAM, 0.0% CPU when idle).
 
 Personal settings, Roblox logs and previous builds are excluded.
 
@@ -32,7 +32,8 @@ Read `dist\self-test\self-test.txt` for the result, or `single-file-error.txt` i
 - `cpp\src\`: native C++ implementations:
   - `MainWindow.cpp`: modern fluent panel, status cards, hotkeys, tray and event loop.
   - `ModernControls.cpp`: custom vector controls (toggles, sliders, dropdowns, steppers, history box).
-  - `DetectedWindow.cpp`: Detected Players roster window with smooth inertia scrolling.
+  - `DetectedWindow.cpp`: Detected Players roster window with session clearing and smooth inertia scrolling.
+  - `WatchlistWindow.cpp`: full interactive watchlist database table with column sorting, real-time search, and CSV export.
   - `ToastManager.cpp`: interactive on-screen floating toast notifications with avatar loading.
   - `LogScanner.cpp`: high-speed AUT log file parsing, initial scan, and player detection.
   - `AudioPlayer.cpp`: low-latency sound playback via embedded miniaudio engine.
@@ -51,7 +52,7 @@ The interface is built with hardware-accelerated GDI+, smooth animated toggles, 
 
 The default watchlist URL is https://raw.githubusercontent.com/agentyautja/borderpatrol-list/main/players.json, automatically synced every 15 minutes in a background thread without interrupting the UI. Downloads are parsed as JSON data, never executed. Failed or invalid downloads retain the last valid list.
 
-The application reads AUT activity in Roblox logs, including an initial scan on startup to identify players already in the server. These logs do not expose a complete live roster or reliable leave events; detection cannot guarantee every player or same-server rejoin.
+The application reads AUT activity in Roblox logs, including an initial scan on startup to identify players already in the server. Detected players automatically reset when disconnecting or switching servers. Inactive players are automatically pruned after 10 minutes of no log activity, and players can be manually removed via right-click or cleared with the "Clear Players" button in the Detected Players window. These logs do not expose a complete live roster or immediate leave events; detection cannot guarantee every player or same-server rejoin.
 
 In-app self-updates check https://github.com/xnldev/BorderWatch releases with 1 click, downloading and atomically replacing the binary.
 
