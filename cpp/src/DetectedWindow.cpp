@@ -1,9 +1,11 @@
 #include "../include/DetectedWindow.h"
 #include "../include/Utils.h"
 #include <algorithm>
+#include <cmath>
 #include <commctrl.h>
 #include <shellapi.h>
 #include <dwmapi.h>
+#include <mmsystem.h>
 
 #pragma comment(lib, "dwmapi.lib")
 
@@ -26,6 +28,7 @@ enum DetectedControlId {
     IDC_EDT_SEARCH = 204,
     IDC_BTN_PROFILE = 205,
     IDC_BTN_COPY = 206,
+    IDC_BTN_DEEP_LINK = 208,
     IDC_BTN_CLEAR_PLAYERS = 209,
     IDC_BTN_DET_TOP_MIN = 210,
     IDC_BTN_DET_TOP_CLOSE = 211
@@ -37,6 +40,8 @@ enum ContextMenuId {
     IDM_CTX_COPY_USERNAME = 3003,
     IDM_CTX_COPY_DISPLAY_NAME = 3004,
     IDM_CTX_COPY_USER_ID = 3005,
+    IDM_CTX_COPY_SERVER_DEEP_LINK = 3008,
+    IDM_CTX_COPY_USER_DEEP_LINK = 3009,
     IDM_CTX_COPY_FULL_INFO = 3006,
     IDM_CTX_REMOVE_PLAYER = 3007
 };
@@ -177,6 +182,12 @@ LRESULT CALLBACK DetectedWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wParam
     case WM_SETCURSOR:
         SetCursor(LoadCursor(nullptr, IDC_ARROW));
         return TRUE;
+    case WM_DESTROY:
+        if (self && self->m_scrollAnimating) {
+            self->m_scrollAnimating = false;
+            timeEndPeriod(1);
+        }
+        return 0;
     case WM_MOUSEWHEEL: {
         if (self && !self->m_filteredPlayers.empty()) {
             RECT rc;
@@ -186,29 +197,43 @@ LRESULT CALLBACK DetectedWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wParam
             int maxOffset = std::max(0, (int)self->m_filteredPlayers.size() - visibleRows);
 
             short delta = GET_WHEEL_DELTA_WPARAM(wParam);
-            float rowsToScroll = (float)delta / 120.0f * 2.2f;
+            float rowsToScroll = (float)delta / 120.0f * 2.5f;
             self->m_targetScrollY = std::clamp(self->m_targetScrollY - rowsToScroll, 0.0f, (float)maxOffset);
 
             if (!self->m_scrollAnimating) {
                 self->m_scrollAnimating = true;
-                SetTimer(hWnd, 2, 16, nullptr);
+                LARGE_INTEGER li;
+                QueryPerformanceCounter(&li);
+                self->m_lastScrollQpc = li.QuadPart;
+                timeBeginPeriod(1);
+                SetTimer(hWnd, 2, 8, nullptr);
             }
         }
         return 0;
     }
     case WM_TIMER: {
         if (wParam == 2 && self && self->m_scrollAnimating) {
+            LARGE_INTEGER now, freq;
+            QueryPerformanceCounter(&now);
+            QueryPerformanceFrequency(&freq);
+            float dt = (float)(now.QuadPart - self->m_lastScrollQpc) / (float)freq.QuadPart;
+            self->m_lastScrollQpc = now.QuadPart;
+            dt = std::clamp(dt, 0.001f, 0.05f);
+
             float diff = self->m_targetScrollY - self->m_currentScrollY;
-            if (std::abs(diff) < 0.02f) {
+            if (std::abs(diff) < 0.002f) {
                 self->m_currentScrollY = self->m_targetScrollY;
                 self->m_scrollOffset = (int)std::round(self->m_currentScrollY);
                 self->m_scrollAnimating = false;
                 KillTimer(hWnd, 2);
+                timeEndPeriod(1);
             } else {
-                self->m_currentScrollY += diff * 0.30f;
+                float factor = 1.0f - std::exp(-16.0f * dt);
+                self->m_currentScrollY += diff * factor;
                 self->m_scrollOffset = (int)std::round(self->m_currentScrollY);
             }
             InvalidateRect(hWnd, nullptr, FALSE);
+            UpdateWindow(hWnd);
         }
         return 0;
     }
@@ -266,6 +291,12 @@ LRESULT CALLBACK DetectedWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wParam
                         AppendMenuW(hMenu, MF_STRING, IDM_CTX_COPY_USER_ID, (L"Copy User ID (" + std::to_wstring(p.user_id) + L")").c_str());
                     }
                     AppendMenuW(hMenu, MF_SEPARATOR, 0, nullptr);
+                    if (!self->m_serverDeepLink.empty()) {
+                        AppendMenuW(hMenu, MF_STRING, IDM_CTX_COPY_SERVER_DEEP_LINK, L"Copy Server Deep Link (roblox://)");
+                    }
+                    if (p.user_id > 0) {
+                        AppendMenuW(hMenu, MF_STRING, IDM_CTX_COPY_USER_DEEP_LINK, L"Copy Friend Join Link (roblox://)");
+                    }
                     AppendMenuW(hMenu, MF_STRING, IDM_CTX_COPY_FULL_INFO, L"Copy Full Details");
                     AppendMenuW(hMenu, MF_SEPARATOR, 0, nullptr);
                     AppendMenuW(hMenu, MF_STRING, IDM_CTX_REMOVE_PLAYER, L"Remove from list (Player left)");
@@ -290,6 +321,13 @@ LRESULT CALLBACK DetectedWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wParam
                     } else if (cmd == IDM_CTX_COPY_USER_ID) {
                         Utils::CopyTextToClipboard(self->m_hWnd, std::to_wstring(p.user_id));
                         self->ShowStatusMessage(L"\u2713 Copied User ID " + std::to_wstring(p.user_id) + L"!");
+                    } else if (cmd == IDM_CTX_COPY_SERVER_DEEP_LINK) {
+                        Utils::CopyTextToClipboard(self->m_hWnd, self->m_serverDeepLink);
+                        self->ShowStatusMessage(L"\u2713 Copied Server Deep Link!");
+                    } else if (cmd == IDM_CTX_COPY_USER_DEEP_LINK) {
+                        std::wstring joinLink = L"roblox://experiences/start?userId=" + std::to_wstring(p.user_id);
+                        Utils::CopyTextToClipboard(self->m_hWnd, joinLink);
+                        self->ShowStatusMessage(L"\u2713 Copied Friend Join Link!");
                     } else if (cmd == IDM_CTX_COPY_FULL_INFO) {
                         std::wstring info = p.username;
                         if (!p.display_name.empty() && p.display_name != p.username) {
@@ -420,7 +458,7 @@ LRESULT CALLBACK DetectedWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wParam
                     : L"No players match the current search / filter.";
 
                 g.DrawString(emptyMsg.c_str(), -1, &emptyFont,
-                             Gdiplus::RectF(0.0f, 30.0f, (float)w, (float)(h - 30)), &sfCenter, &emptyBrush);
+                                Gdiplus::RectF(0.0f, 30.0f, (float)w, (float)(h - 30)), &sfCenter, &emptyBrush);
             } else {
                 int rowH = 34;
                 int visibleRows = std::max(1, (h - 30) / rowH);
@@ -686,14 +724,11 @@ void DetectedWindow::ApplyTheme(const Config& config) {
     }
 }
 
-void DetectedWindow::UpdateData(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& webLink, const std::wstring& deepLink) {
+void DetectedWindow::UpdateData(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& deepLink) {
     if (m_darkMode != config.appearance.dark_mode) {
         ApplyTheme(config);
     }
 
-    if (!webLink.empty()) {
-        m_serverWebLink = webLink;
-    }
     if (!deepLink.empty()) {
         m_serverDeepLink = deepLink;
     }
@@ -748,7 +783,7 @@ void DetectedWindow::UpdateData(const std::vector<DetectedPlayer>& players, cons
     }
 }
 
-void DetectedWindow::Show(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& webLink, const std::wstring& deepLink) {
+void DetectedWindow::Show(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& deepLink) {
     if (!m_hWnd || !IsWindow(m_hWnd)) {
         // reg main window class
         WNDCLASSEXW wc = { sizeof(WNDCLASSEXW) };
@@ -883,6 +918,14 @@ void DetectedWindow::Show(const std::vector<DetectedPlayer>& players, const std:
         );
         SetWindowLongPtrW(m_hCopyBtn, GWLP_WNDPROC, (LONG_PTR)HandCursorBtnSubclass);
 
+        m_hDeepLinkBtn = CreateWindowExW(
+            0, L"BUTTON", L"Deep Link",
+            WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
+            238, 476, 100, 32,
+            m_hWnd, (HMENU)IDC_BTN_DEEP_LINK, m_hInstance, nullptr
+        );
+        SetWindowLongPtrW(m_hDeepLinkBtn, GWLP_WNDPROC, (LONG_PTR)HandCursorBtnSubclass);
+
         m_hClearBtn = CreateWindowExW(
             0, L"BUTTON", L"Clear Players",
             WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
@@ -917,6 +960,10 @@ void DetectedWindow::Show(const std::vector<DetectedPlayer>& players, const std:
             ti.lpszText = const_cast<LPWSTR>(L"Clear all detected players from the current session.");
             SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
 
+            ti.uId = (UINT_PTR)m_hDeepLinkBtn;
+            ti.lpszText = const_cast<LPWSTR>(L"Copy roblox:// server deep link to clipboard for sharing with clan.");
+            SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
+
             TOOLINFOW tiBadge = { sizeof(TOOLINFOW) };
             tiBadge.uFlags = TTF_SUBCLASS;
             tiBadge.hwnd = m_hWnd;
@@ -927,7 +974,11 @@ void DetectedWindow::Show(const std::vector<DetectedPlayer>& players, const std:
         }
     }
 
-    UpdateData(players, summary, config, webLink, deepLink);
+    RECT rc = { 0 };
+    GetClientRect(m_hWnd, &rc);
+    RelayoutControls(rc.right - rc.left, rc.bottom - rc.top);
+
+    UpdateData(players, summary, config, deepLink);
     ShowWindow(m_hWnd, SW_SHOW);
     SetForegroundWindow(m_hWnd);
 }
@@ -960,7 +1011,10 @@ void DetectedWindow::RelayoutControls(int w, int h) {
         SetWindowPos(m_hProfileBtn, nullptr, 18, btnY, 110, 32, SWP_NOZORDER);
     }
     if (m_hCopyBtn && IsWindow(m_hCopyBtn)) {
-        SetWindowPos(m_hCopyBtn, nullptr, 136, btnY, 100, 32, SWP_NOZORDER);
+        SetWindowPos(m_hCopyBtn, nullptr, 136, btnY, 95, 32, SWP_NOZORDER);
+    }
+    if (m_hDeepLinkBtn && IsWindow(m_hDeepLinkBtn)) {
+        SetWindowPos(m_hDeepLinkBtn, nullptr, 239, btnY, 105, 32, SWP_NOZORDER);
     }
     int refreshW = 85;
     int clearW = 110;
@@ -1350,6 +1404,14 @@ LRESULT CALLBACK DetectedWindow::WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPA
                 break;
             case IDC_BTN_COPY:
                 self->CopySelectedUsername();
+                break;
+            case IDC_BTN_DEEP_LINK:
+                if (!self->m_serverDeepLink.empty()) {
+                    Utils::CopyTextToClipboard(self->m_hWnd, self->m_serverDeepLink);
+                    self->ShowStatusMessage(L"\u2713 Copied Server Deep Link!");
+                } else {
+                    self->ShowStatusMessage(L"\u26A0 No active server link available");
+                }
                 break;
             case IDC_BTN_CLEAR_PLAYERS:
                 if (self->m_scanner) {

@@ -1,10 +1,11 @@
 #pragma once
 #include <string>
 
-#define BW_APP_VERSION L"5.0.1"
+#define BW_APP_VERSION L"5.0.2"
 
 struct Config {
     bool enabled = true;
+    bool anti_afk = true;
     bool notify_enemies = true;
     bool notify_allies = false;
 

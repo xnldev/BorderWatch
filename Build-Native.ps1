@@ -37,11 +37,12 @@ $sources = @(
     "`"$cppDir\src\HotkeyManager.cpp`"",
     "`"$cppDir\src\TrayIcon.cpp`"",
     "`"$cppDir\src\ModernControls.cpp`"",
+    "`"$cppDir\src\AntiAfk.cpp`"",
     "`"$cppDir\src\MainWindow.cpp`"",
     "`"$cppDir\src\Main.cpp`""
 ) -join " "
 
-$libs = "user32.lib gdi32.lib shell32.lib ole32.lib comctl32.lib comdlg32.lib winhttp.lib gdiplus.lib advapi32.lib uxtheme.lib dwmapi.lib"
+$libs = "user32.lib gdi32.lib shell32.lib ole32.lib comctl32.lib comdlg32.lib winhttp.lib gdiplus.lib advapi32.lib uxtheme.lib dwmapi.lib winmm.lib"
 $outFile = "`"$distDir\$OutputName`""
 $resFile = "`"$distDir\BorderWatch.res`""
 

@@ -63,9 +63,9 @@ public:
     std::wstring GetLastScanTime() const;
     std::wstring GetCurrentServerId() const;
     std::wstring GetCurrentPlaceId() const;
-    std::wstring GetServerWebLink() const;
     std::wstring GetServerDeepLink() const;
     size_t GetTotalSeenNames() const;
+    DWORD GetRobloxPid() const;
 
 private:
     enum class Phase {

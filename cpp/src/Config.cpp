@@ -32,6 +32,9 @@ Config Config::LoadFromString(const std::string& json) {
     if ((v = yyjson_obj_get(root, "enabled")) && yyjson_is_bool(v)) {
         cfg.enabled = yyjson_get_bool(v);
     }
+    if ((v = yyjson_obj_get(root, "anti_afk")) && yyjson_is_bool(v)) {
+        cfg.anti_afk = yyjson_get_bool(v);
+    }
     if ((v = yyjson_obj_get(root, "notify_enemies")) && yyjson_is_bool(v)) {
         cfg.notify_enemies = yyjson_get_bool(v);
     }
@@ -140,6 +143,7 @@ bool Config::SaveToFile(const std::wstring& path) const {
 
     yyjson_mut_obj_add_str(doc, root, "detection_mode", "local");
     yyjson_mut_obj_add_bool(doc, root, "enabled", enabled);
+    yyjson_mut_obj_add_bool(doc, root, "anti_afk", anti_afk);
     yyjson_mut_obj_add_bool(doc, root, "notify_enemies", notify_enemies);
     yyjson_mut_obj_add_bool(doc, root, "notify_allies", notify_allies);
     yyjson_mut_obj_add_str(doc, root, "members_file", "players.json");

@@ -132,7 +132,7 @@ LRESULT ToastManager::HandleToastMessage(HWND hWnd, UINT msg, WPARAM wParam, LPA
 
         toast->closing = true;
         if (!clickedClose && m_hParentWnd && IsWindow(m_hParentWnd)) {
-            PostMessageW(m_hParentWnd, WM_BW_OPEN_FROM_TOAST, 0, 0);
+            PostMessageW(m_hParentWnd, WM_BW_OPEN_FROM_TOAST, toast->is_update ? 1 : 0, 0);
         }
         return 0;
     }
@@ -181,11 +181,18 @@ void ToastManager::RenderToast(ToastCard& toast, const Config& config) {
         }
 
         bool isEnemy = (toast.status == L"Enemy");
-        bool isSystemToast = (toast.username == L"Server Link Copied" || toast.username == L"Web Link Copied");
+        bool isSystemToast = (toast.username == L"Deep Link Copied" || toast.username == L"Server Link Copied" || toast.username == L"Web Link Copied");
 
-        Gdiplus::Color accentColor = isEnemy
-            ? Utils::HexToColor(config.notification.enemy_accent)
-            : (isSystemToast ? Gdiplus::Color(255, 85, 117, 239) : Utils::HexToColor(config.notification.ally_accent));
+        Gdiplus::Color accentColor;
+        if (toast.is_update) {
+            accentColor = Gdiplus::Color(255, 99, 102, 241); // modern royal indigo/blue (#6366F1)
+        } else if (isEnemy) {
+            accentColor = Utils::HexToColor(config.notification.enemy_accent);
+        } else if (isSystemToast) {
+            accentColor = Gdiplus::Color(255, 85, 117, 239);
+        } else {
+            accentColor = Utils::HexToColor(config.notification.ally_accent);
+        }
 
         Gdiplus::RectF cardRect(kToastMargin, kToastMargin,
                                 (float)width - 2.0f * kToastMargin,
@@ -252,7 +259,7 @@ void ToastManager::RenderToast(ToastCard& toast, const Config& config) {
         float avatarX = cardRect.X + 22.0f;
         float avatarY = cardRect.Y + (cardRect.Height - avatarSize) / 2.0f - 1.0f;
         Utils::DrawAvatarCircle(g, toast.avatar_png, toast.username, toast.status,
-                                avatarX, avatarY, avatarSize, isDark, toast.is_summary || isSystemToast);
+                                avatarX, avatarY, avatarSize, isDark, toast.is_summary || isSystemToast, toast.is_update);
 
         // badges
         Gdiplus::FontFamily fontFamily(L"Segoe UI");
@@ -264,7 +271,8 @@ void ToastManager::RenderToast(ToastCard& toast, const Config& config) {
         float maxTextRight = cardRect.GetRight() - 34.0f;
 
         std::wstring statusLabel;
-        if (toast.is_summary) statusLabel = L"SESSION SCAN";
+        if (toast.is_update) statusLabel = L"\u25CF UPDATE";
+        else if (toast.is_summary) statusLabel = L"SESSION SCAN";
         else if (isSystemToast) statusLabel = L"CLIPBOARD";
         else if (isEnemy) statusLabel = L"\u25CF ENEMY";
         else statusLabel = L"\u25CF ALLY";
@@ -280,11 +288,16 @@ void ToastManager::RenderToast(ToastCard& toast, const Config& config) {
         Utils::AddRoundedRect(statusPillPath, statusPillRect, 6.0f);
 
         Gdiplus::Color pillBg(isDark ? 45 : 28, accentColor.GetR(), accentColor.GetG(), accentColor.GetB());
-        Gdiplus::Color pillFg = isEnemy
-            ? (isDark ? Gdiplus::Color(255, 255, 120, 120) : Gdiplus::Color(255, 200, 38, 38))
-            : (isSystemToast
-                ? (isDark ? Gdiplus::Color(255, 140, 170, 255) : Gdiplus::Color(255, 65, 98, 225))
-                : (isDark ? Gdiplus::Color(255, 94, 234, 174) : Gdiplus::Color(255, 16, 135, 92)));
+        Gdiplus::Color pillFg;
+        if (toast.is_update) {
+            pillFg = isDark ? Gdiplus::Color(255, 165, 180, 252) : Gdiplus::Color(255, 79, 70, 229);
+        } else if (isEnemy) {
+            pillFg = isDark ? Gdiplus::Color(255, 255, 120, 120) : Gdiplus::Color(255, 200, 38, 38);
+        } else if (isSystemToast) {
+            pillFg = isDark ? Gdiplus::Color(255, 140, 170, 255) : Gdiplus::Color(255, 65, 98, 225);
+        } else {
+            pillFg = isDark ? Gdiplus::Color(255, 94, 234, 174) : Gdiplus::Color(255, 16, 135, 92);
+        }
 
         Gdiplus::SolidBrush pillBgBrush(pillBg);
         g.FillPath(&pillBgBrush, &statusPillPath);
@@ -295,7 +308,7 @@ void ToastManager::RenderToast(ToastCard& toast, const Config& config) {
         Gdiplus::SolidBrush pillFgBrush(pillFg);
         g.DrawString(statusLabel.c_str(), -1, &badgeFont, statusPillRect, &sfCenter, &pillFgBrush);
 
-        if (!toast.is_summary && !isSystemToast && config.notification.show_clan && !toast.clan.empty()) {
+        if ((toast.is_update || (!toast.is_summary && !isSystemToast && config.notification.show_clan)) && !toast.clan.empty()) {
             float clanX = statusPillRect.GetRight() + 6.0f;
             Gdiplus::RectF measuredClan;
             g.MeasureString(toast.clan.c_str(), -1, &badgeFont, Gdiplus::PointF(0, 0), &measuredClan);
@@ -305,8 +318,15 @@ void ToastManager::RenderToast(ToastCard& toast, const Config& config) {
                 Gdiplus::GraphicsPath clanPillPath;
                 Utils::AddRoundedRect(clanPillPath, clanPillRect, 6.0f);
 
-                Gdiplus::Color clanBg = isDark ? Gdiplus::Color(255, 45, 53, 70) : Gdiplus::Color(255, 234, 238, 247);
-                Gdiplus::Color clanFg = isDark ? Gdiplus::Color(255, 190, 200, 220) : Gdiplus::Color(255, 85, 96, 120);
+                Gdiplus::Color clanBg;
+                Gdiplus::Color clanFg;
+                if (toast.is_update) {
+                    clanBg = isDark ? Gdiplus::Color(255, 40, 48, 75) : Gdiplus::Color(255, 230, 235, 255);
+                    clanFg = isDark ? Gdiplus::Color(255, 199, 210, 254) : Gdiplus::Color(255, 67, 56, 202);
+                } else {
+                    clanBg = isDark ? Gdiplus::Color(255, 45, 53, 70) : Gdiplus::Color(255, 234, 238, 247);
+                    clanFg = isDark ? Gdiplus::Color(255, 190, 200, 220) : Gdiplus::Color(255, 85, 96, 120);
+                }
                 Gdiplus::SolidBrush clanBgBrush(clanBg);
                 Gdiplus::SolidBrush clanFgBrush(clanFg);
                 g.FillPath(&clanBgBrush, &clanPillPath);
@@ -330,7 +350,11 @@ void ToastManager::RenderToast(ToastCard& toast, const Config& config) {
         g.DrawString(toast.username.c_str(), -1, &titleFont, titleRect, &sfLeft, &titleBrush);
 
         std::wstring subText;
-        if (toast.is_summary || isSystemToast) {
+        if (toast.is_update) {
+            subText = toast.is_hovered
+                ? L"Click to install and restart  \u00B7  \u00D7 to dismiss"
+                : L"New version available  \u00B7  Click to install now";
+        } else if (toast.is_summary || isSystemToast) {
             subText = toast.clan;
             if (toast.is_hovered && !isSystemToast) {
                 subText += L"  \u00B7  Click to open";
@@ -498,6 +522,70 @@ void ToastManager::ShowToast(const std::wstring& username, const std::wstring& s
         WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
         TOAST_CLASS_NAME,
         L"BorderWatch Toast",
+        WS_POPUP,
+        0, 0, cardWidth, cardHeight,
+        nullptr, nullptr, m_hInstance, this
+    );
+
+    toast->hWnd = hWnd;
+    ShowWindow(hWnd, SW_SHOWNOACTIVATE);
+
+    m_toasts.push_back(std::move(toast));
+    RecalculatePositions(config);
+    RenderToast(*m_toasts.back(), config);
+}
+
+void ToastManager::ShowUpdateToast(const std::wstring& newVersion, const Config& config) {
+    m_lastConfig = config;
+
+    // Avoid duplicate update toast if already showing
+    for (const auto& t : m_toasts) {
+        if (t->is_update) {
+            t->remaining_ms = 12000.0;
+            return;
+        }
+    }
+
+    RECT wa;
+    SystemParametersInfoW(SPI_GETWORKAREA, 0, &wa, 0);
+    int cardWidth = config.notification.width + (int)(kToastMargin * 2.0f);
+    int cardHeight = kToastWindowHeight;
+    int margin = config.notification.margin;
+    int stepY = std::max(1, cardHeight - 10);
+    int stepX = cardWidth + 8;
+    int availW = std::max(1, (int)(wa.right - wa.left));
+    int availH = std::max(1, (int)(wa.bottom - wa.top));
+    int rows = 1 + std::max(0, (availH - 2 * margin - cardHeight) / stepY);
+    int cols = 1 + std::max(0, (availW - 2 * margin - cardWidth) / stepX);
+    int effectiveMax = std::clamp(std::min(config.notification.max_visible, rows * cols), 1, 20);
+
+    while ((int)m_toasts.size() >= effectiveMax) {
+        if (!m_toasts.empty()) {
+            DestroyWindow(m_toasts.front()->hWnd);
+            m_toasts.erase(m_toasts.begin());
+        }
+    }
+
+    auto toast = std::make_unique<ToastCard>();
+    toast->username = L"BorderWatch " + newVersion;
+    toast->status = L"Update";
+    toast->clan = newVersion;
+    toast->is_summary = false;
+    toast->is_update = true;
+    toast->created_time = std::chrono::steady_clock::now();
+    toast->last_tick_time = toast->created_time;
+    toast->total_duration_ms = 12000.0; // 12 seconds so user has time to see and interact
+    toast->remaining_ms = toast->total_duration_ms;
+    toast->expires_time = toast->created_time + std::chrono::milliseconds(12000);
+    toast->current_opacity = 0.0;
+    toast->target_opacity = config.notification.opacity;
+    toast->slide_offset_y = 14;
+    toast->closing = false;
+
+    HWND hWnd = CreateWindowExW(
+        WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+        TOAST_CLASS_NAME,
+        L"BorderWatch Update Toast",
         WS_POPUP,
         0, 0, cardWidth, cardHeight,
         nullptr, nullptr, m_hInstance, this

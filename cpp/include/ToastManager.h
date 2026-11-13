@@ -18,6 +18,7 @@ struct ToastCard {
     std::wstring status;
     std::wstring clan;
     bool is_summary = false;
+    bool is_update = false;
     std::vector<uint8_t> avatar_png;
     double current_opacity = 0.0;
     double target_opacity = 1.0;
@@ -44,6 +45,7 @@ public:
     void ShowToast(const std::wstring& username, const std::wstring& status,
                     const std::wstring& clan, bool isSummary, const Config& config,
                     const std::vector<uint8_t>& avatarPng = {});
+    void ShowUpdateToast(const std::wstring& newVersion, const Config& config);
     void UpdateAnimations(const Config& config, const LogScanner* scanner = nullptr);
     bool HasActiveToasts() const { return !m_toasts.empty(); }
     void CloseAll();

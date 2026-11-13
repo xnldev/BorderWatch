@@ -17,11 +17,14 @@
 #include "WatchlistWindow.h"
 #include "TrayIcon.h"
 #include "ModernControls.h"
+#include "AntiAfk.h"
 
 extern const wchar_t* MAIN_CLASS_NAME;
+void AppReleaseMutex();
 
-#define WM_BW_GITHUB_UPDATED    (WM_USER + 102)
-#define WM_BW_APP_UPDATE_RESULT (WM_USER + 106)
+#define WM_BW_GITHUB_UPDATED      (WM_USER + 102)
+#define WM_BW_APP_UPDATE_RESULT   (WM_USER + 106)
+#define WM_BW_APP_UPDATE_PROGRESS (WM_USER + 107)
 
 class MainWindow {
 public:
@@ -47,11 +50,11 @@ private:
     void ProcessScannerEvents();
     void UpdateStatusDisplay();
     void ChooseCustomSound(bool isAlly = false);
+    void UpdateSoundDropdownItems();
     void StartGitHubSync();
     void CheckForAppUpdates(bool manualTrigger = false);
     void PerformSelfUpdate();
     void EnsureAnimationTimer();
-    void CopyServerWebLink();
     void CopyServerDeepLink();
     void OpenWatchlistWindow();
     void SetSaveStatusText(const std::wstring& text, int autoClearMs = 2800);
@@ -71,6 +74,7 @@ private:
     std::unique_ptr<DetectedWindow> m_detectedWnd;
     std::unique_ptr<WatchlistWindow> m_watchlistWnd;
     std::unique_ptr<TrayIcon> m_tray;
+    std::unique_ptr<AntiAfk> m_antiAfk;
 
     std::thread m_githubThread;
     std::thread m_updateThread;
@@ -97,7 +101,6 @@ private:
     HWND m_hTopMinBtn = nullptr;
     HWND m_hTopCloseBtn = nullptr;
     HWND m_hAppUpdateBtn = nullptr;
-    HWND m_hWebLinkBtn = nullptr;
     HWND m_hDeepLinkBtn = nullptr;
     HWND m_hDetectedBtn = nullptr;
     HWND m_hPauseBtn = nullptr;

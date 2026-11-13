@@ -13,10 +13,10 @@ public:
     DetectedWindow(HINSTANCE hInstance, HWND hParent);
     ~DetectedWindow();
 
-    void Show(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& webLink = L"", const std::wstring& deepLink = L"");
+    void Show(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& deepLink = L"");
     void Hide();
     bool IsVisible() const;
-    void UpdateData(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& webLink = L"", const std::wstring& deepLink = L"");
+    void UpdateData(const std::vector<DetectedPlayer>& players, const std::wstring& summary, const Config& config, const std::wstring& deepLink = L"");
     void ApplyTheme(const Config& config);
     void RelayoutControls(int width, int height);
     void SetScanner(LogScanner* scanner) { m_scanner = scanner; }
@@ -44,6 +44,7 @@ private:
     HWND m_hSearchEdit = nullptr;
     HWND m_hProfileBtn = nullptr;
     HWND m_hCopyBtn = nullptr;
+    HWND m_hDeepLinkBtn = nullptr;
     HWND m_hClearBtn = nullptr;
     HWND m_hRefreshBtn = nullptr;
     HWND m_hTooltip = nullptr;
@@ -59,13 +60,13 @@ private:
     std::vector<DetectedPlayer> m_filteredPlayers;
     int m_filterMode = 0;
     std::wstring m_searchQuery;
-    std::wstring m_serverWebLink;
     std::wstring m_serverDeepLink;
 
     int m_scrollOffset = 0;
     float m_currentScrollY = 0.0f;
     float m_targetScrollY = 0.0f;
     bool m_scrollAnimating = false;
+    LONGLONG m_lastScrollQpc = 0;
     int m_hoveredRow = -1;
     int m_selectedRow = -1;
 };

@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <mmsystem.h>
 
 static bool s_isDark = false;
 static float s_darkProgress = 0.0f;
@@ -761,6 +762,7 @@ struct HistoryData {
     float currentScroll = 0.0f;
     float targetScroll = 0.0f;
     bool scrollAnimating = false;
+    LONGLONG lastScrollQpc = 0;
     bool isDragging = false;
     int dragStartY = 0;
     float dragStartOffset = 0.0f;
@@ -776,6 +778,9 @@ static LRESULT CALLBACK HistoryWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
         return TRUE;
     }
     case WM_NCDESTROY: {
+        if (data && data->scrollAnimating) {
+            timeEndPeriod(1);
+        }
         delete data;
         SetWindowLongPtrW(hWnd, GWLP_USERDATA, 0);
         return 0;
@@ -795,27 +800,41 @@ static LRESULT CALLBACK HistoryWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARA
             int maxOffset = std::max(0, (int)data->lines.size() - visibleCount);
 
             short delta = GET_WHEEL_DELTA_WPARAM(wParam);
-            float linesToScroll = (float)delta / 120.0f * 2.2f;
+            float linesToScroll = (float)delta / 120.0f * 2.5f;
             data->targetScroll = std::clamp(data->targetScroll - linesToScroll, 0.0f, (float)maxOffset);
 
             if (!data->scrollAnimating) {
                 data->scrollAnimating = true;
-                SetTimer(hWnd, 2, 16, nullptr);
+                LARGE_INTEGER li;
+                QueryPerformanceCounter(&li);
+                data->lastScrollQpc = li.QuadPart;
+                timeBeginPeriod(1);
+                SetTimer(hWnd, 2, 8, nullptr);
             }
         }
         return 0;
     }
     case WM_TIMER: {
         if (wParam == 2 && data && data->scrollAnimating) {
+            LARGE_INTEGER now, freq;
+            QueryPerformanceCounter(&now);
+            QueryPerformanceFrequency(&freq);
+            float dt = (float)(now.QuadPart - data->lastScrollQpc) / (float)freq.QuadPart;
+            data->lastScrollQpc = now.QuadPart;
+            dt = std::clamp(dt, 0.001f, 0.05f);
+
             float diff = data->targetScroll - data->currentScroll;
-            if (std::abs(diff) < 0.02f) {
+            if (std::abs(diff) < 0.002f) {
                 data->currentScroll = data->targetScroll;
                 data->scrollAnimating = false;
                 KillTimer(hWnd, 2);
+                timeEndPeriod(1);
             } else {
-                data->currentScroll += diff * 0.30f;
+                float factor = 1.0f - std::exp(-16.0f * dt);
+                data->currentScroll += diff * factor;
             }
             InvalidateRect(hWnd, nullptr, FALSE);
+            UpdateWindow(hWnd);
         }
         return 0;
     }

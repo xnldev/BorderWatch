@@ -18,6 +18,8 @@ obj/
 *.old
 *.new
 self-test*.txt
+test_players.json
+single-file-error.txt
 *.log
 
 # Windows thumbnail & desktop caches

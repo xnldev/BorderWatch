@@ -36,6 +36,12 @@ inline std::wstring CombinePath(const std::wstring& dir, const std::wstring& fil
     return dir + L"\\" + file;
 }
 
+inline std::wstring GetFilenameFromPath(const std::wstring& path) {
+    size_t pos = path.find_last_of(L"\\/");
+    if (pos == std::wstring::npos) return path;
+    return path.substr(pos + 1);
+}
+
 inline bool EnsureDirectoryExists(const std::wstring& path) {
     DWORD attr = GetFileAttributesW(path.c_str());
     if (attr != INVALID_FILE_ATTRIBUTES && (attr & FILE_ATTRIBUTE_DIRECTORY)) return true;
@@ -56,6 +62,12 @@ inline std::wstring GetExecutablePath() {
     wchar_t buf[MAX_PATH] = {};
     DWORD len = GetModuleFileNameW(nullptr, buf, MAX_PATH);
     return (len > 0) ? std::wstring(buf, len) : L"";
+}
+
+inline std::wstring GetExecutableDirectory() {
+    std::wstring p = GetExecutablePath();
+    size_t pos = p.find_last_of(L"\\/");
+    return (pos != std::wstring::npos) ? p.substr(0, pos) : L"";
 }
 
 inline std::wstring ToLower(const std::wstring& s) {
@@ -208,49 +220,67 @@ inline void DrawAvatarCircle(Gdiplus::Graphics& g,
                                 const std::wstring& status,
                                 float x, float y, float diameter,
                                 bool isDark,
-                                bool isSummary = false) {
+                                bool isSummary = false,
+                                bool isUpdate = false) {
     bool isEnemy = (status == L"Enemy");
-    Gdiplus::Color ringColor = isEnemy ? Gdiplus::Color(255, 229, 72, 77) : Gdiplus::Color(255, 48, 164, 108);
-    Gdiplus::Color fillBg = isEnemy
-        ? (isDark ? Gdiplus::Color(255, 58, 28, 36) : Gdiplus::Color(255, 254, 226, 229))
-        : (isDark ? Gdiplus::Color(255, 24, 52, 38) : Gdiplus::Color(255, 224, 248, 234));
+    bool isUpd = isUpdate || (status == L"Update");
+    Gdiplus::Color ringColor = isUpd
+        ? Gdiplus::Color(255, 99, 102, 241)
+        : (isEnemy ? Gdiplus::Color(255, 229, 72, 77) : Gdiplus::Color(255, 48, 164, 108));
+    Gdiplus::Color fillBg = isUpd
+        ? (isDark ? Gdiplus::Color(255, 36, 42, 68) : Gdiplus::Color(255, 238, 242, 255))
+        : (isEnemy
+            ? (isDark ? Gdiplus::Color(255, 58, 28, 36) : Gdiplus::Color(255, 254, 226, 229))
+            : (isDark ? Gdiplus::Color(255, 24, 52, 38) : Gdiplus::Color(255, 224, 248, 234)));
 
     Gdiplus::RectF circleRect(x, y, diameter, diameter);
     Gdiplus::SolidBrush bgBrush(fillBg);
     g.FillEllipse(&bgBrush, circleRect);
 
-    std::wstring cacheKey = username;
-    for (wchar_t& c : cacheKey) c = (wchar_t)towlower(c);
-
-    Gdiplus::Bitmap* bmp = (!isSummary && !pngBytes.empty()) ? GetCachedAvatarBitmap(cacheKey, pngBytes) : nullptr;
-    if (bmp) {
-        Gdiplus::GraphicsPath clipPath;
-        clipPath.AddEllipse(circleRect);
-        Gdiplus::Region oldClip;
-        g.GetClip(&oldClip);
-        g.SetClip(&clipPath, Gdiplus::CombineModeIntersect);
-        g.SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
-        g.DrawImage(bmp, circleRect);
-        g.SetClip(&oldClip, Gdiplus::CombineModeReplace);
-    } else {
-        std::wstring initials = L"?";
-        if (isSummary) {
-            initials = L"!";
-        } else if (!username.empty()) {
-            initials.clear();
-            initials.push_back((wchar_t)towupper(username[0]));
-            if (username.size() > 1 && diameter >= 30.0f) {
-                initials.push_back((wchar_t)towupper(username[1]));
-            }
-        }
+    if (isUpd) {
         Gdiplus::FontFamily ff(L"Segoe UI");
-        float fontSize = std::max(7.5f, diameter * 0.34f);
+        float fontSize = std::max(9.0f, diameter * 0.44f);
         Gdiplus::Font font(&ff, fontSize, Gdiplus::FontStyleBold, Gdiplus::UnitPoint);
         Gdiplus::SolidBrush txtBrush(ringColor);
         Gdiplus::StringFormat sf;
         sf.SetAlignment(Gdiplus::StringAlignmentCenter);
         sf.SetLineAlignment(Gdiplus::StringAlignmentCenter);
-        g.DrawString(initials.c_str(), -1, &font, circleRect, &sf, &txtBrush);
+        const wchar_t* arrowSym = L"\u2193"; // ↓
+        g.DrawString(arrowSym, -1, &font, circleRect, &sf, &txtBrush);
+    } else {
+        std::wstring cacheKey = username;
+        for (wchar_t& c : cacheKey) c = (wchar_t)towlower(c);
+
+        Gdiplus::Bitmap* bmp = (!isSummary && !pngBytes.empty()) ? GetCachedAvatarBitmap(cacheKey, pngBytes) : nullptr;
+        if (bmp) {
+            Gdiplus::GraphicsPath clipPath;
+            clipPath.AddEllipse(circleRect);
+            Gdiplus::Region oldClip;
+            g.GetClip(&oldClip);
+            g.SetClip(&clipPath, Gdiplus::CombineModeIntersect);
+            g.SetInterpolationMode(Gdiplus::InterpolationModeHighQualityBicubic);
+            g.DrawImage(bmp, circleRect);
+            g.SetClip(&oldClip, Gdiplus::CombineModeReplace);
+        } else {
+            std::wstring initials = L"?";
+            if (isSummary) {
+                initials = L"!";
+            } else if (!username.empty()) {
+                initials.clear();
+                initials.push_back((wchar_t)towupper(username[0]));
+                if (username.size() > 1 && diameter >= 30.0f) {
+                    initials.push_back((wchar_t)towupper(username[1]));
+                }
+            }
+            Gdiplus::FontFamily ff(L"Segoe UI");
+            float fontSize = std::max(7.5f, diameter * 0.34f);
+            Gdiplus::Font font(&ff, fontSize, Gdiplus::FontStyleBold, Gdiplus::UnitPoint);
+            Gdiplus::SolidBrush txtBrush(ringColor);
+            Gdiplus::StringFormat sf;
+            sf.SetAlignment(Gdiplus::StringAlignmentCenter);
+            sf.SetLineAlignment(Gdiplus::StringAlignmentCenter);
+            g.DrawString(initials.c_str(), -1, &font, circleRect, &sf, &txtBrush);
+        }
     }
 
     Gdiplus::Pen ringPen(ringColor, diameter >= 32.0f ? 1.8f : 1.2f);

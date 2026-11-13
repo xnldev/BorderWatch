@@ -12,6 +12,7 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+#include <functional>
 
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "dwmapi.lib")
@@ -51,14 +52,16 @@ enum ControlId {
     IDC_BTN_AUTOSTART,
     IDC_BTN_RESET,
     IDC_BTN_HIDE_TRAY,
-    IDC_BTN_WEB_LINK,
     IDC_BTN_DEEP_LINK,
     IDC_BTN_APP_UPDATE
 };
 
 namespace {
 
-bool HttpGetBytes(const std::wstring& url, std::vector<uint8_t>& outBytes, DWORD& outStatus) {
+bool HttpGetBytes(const std::wstring& url,
+                  std::vector<uint8_t>& outBytes,
+                  DWORD& outStatus,
+                  std::function<void(size_t downloaded, size_t total)> progressCallback = nullptr) {
     outBytes.clear();
     outStatus = 0;
 
@@ -119,6 +122,13 @@ bool HttpGetBytes(const std::wstring& url, std::vector<uint8_t>& outBytes, DWORD
         WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_STATUS_CODE | WINHTTP_QUERY_FLAG_NUMBER,
                             WINHTTP_HEADER_NAME_BY_INDEX, &outStatus, &statusSize, WINHTTP_NO_HEADER_INDEX);
 
+        DWORD totalLength = 0;
+        DWORD lenSize = sizeof(totalLength);
+        if (!WinHttpQueryHeaders(hRequest, WINHTTP_QUERY_CONTENT_LENGTH | WINHTTP_QUERY_FLAG_NUMBER,
+                                 WINHTTP_HEADER_NAME_BY_INDEX, &totalLength, &lenSize, WINHTTP_NO_HEADER_INDEX)) {
+            totalLength = 0;
+        }
+
         DWORD dwSize = 0;
         do {
             dwSize = 0;
@@ -130,6 +140,9 @@ bool HttpGetBytes(const std::wstring& url, std::vector<uint8_t>& outBytes, DWORD
             DWORD dwDownloaded = 0;
             if (WinHttpReadData(hRequest, outBytes.data() + oldSize, dwSize, &dwDownloaded)) {
                 outBytes.resize(oldSize + dwDownloaded);
+                if (progressCallback) {
+                    progressCallback(outBytes.size(), (size_t)totalLength);
+                }
             } else {
                 outBytes.resize(oldSize);
                 break;
@@ -221,6 +234,7 @@ MainWindow::MainWindow(HINSTANCE hInstance, const std::wstring& dataDir)
 
 MainWindow::~MainWindow() {
     HotkeyManager::UninstallHook();
+    if (m_antiAfk) m_antiAfk->Stop();
     if (m_scanner) m_scanner->Stop();
     if (m_githubThread.joinable()) m_githubThread.join();
     if (m_updateThread.joinable()) m_updateThread.join();
@@ -315,6 +329,11 @@ bool MainWindow::Create() {
 
     // start background scanner thread
     m_scanner->Start();
+
+    // start background Anti-AFK engine
+    m_antiAfk = std::make_unique<AntiAfk>(m_scanner.get());
+    m_antiAfk->SetEnabled(m_config.anti_afk);
+    m_antiAfk->Start();
 
     // start asynchronous GitHub watchlist update immediately and every 15 minutes automatically
     StartGitHubSync();
@@ -499,18 +518,32 @@ void MainWindow::PerformSelfUpdate() {
         m_updateThread.join();
     }
     if (m_hAppUpdateBtn && IsWindow(m_hAppUpdateBtn)) {
-        SetWindowTextW(m_hAppUpdateBtn, L"Updating...");
+        SetWindowTextW(m_hAppUpdateBtn, L"Updating (0%)...");
         InvalidateRect(m_hAppUpdateBtn, nullptr, FALSE);
     }
-    SetSaveStatusText(L"Downloading update from GitHub...");
+    SetSaveStatusText(L"Connecting to GitHub...");
 
     std::wstring dlUrl = m_updateDownloadUrl;
     HWND targetHwnd = m_hWnd;
 
     m_updateThread = std::thread([this, dlUrl, targetHwnd]() {
+        auto lastReport = std::chrono::steady_clock::now();
+
+        auto progressCb = [targetHwnd, &lastReport](size_t downloaded, size_t total) {
+            auto now = std::chrono::steady_clock::now();
+            if (std::chrono::duration_cast<std::chrono::milliseconds>(now - lastReport).count() >= 50 || (total > 0 && downloaded >= total)) {
+                lastReport = now;
+                WPARAM pct = (total > 0) ? (WPARAM)std::clamp((double)downloaded * 100.0 / (double)total, 0.0, 100.0) : (WPARAM)-1;
+                LPARAM kb = (LPARAM)(downloaded / 1024);
+                if (IsWindow(targetHwnd)) {
+                    PostMessageW(targetHwnd, WM_BW_APP_UPDATE_PROGRESS, pct, kb);
+                }
+            }
+        };
+
         std::vector<uint8_t> exeBytes;
         DWORD status = 0;
-        bool ok = HttpGetBytes(dlUrl, exeBytes, status);
+        bool ok = HttpGetBytes(dlUrl, exeBytes, status, progressCb);
 
         if (!ok || status != 200 || exeBytes.size() < 102400 || exeBytes[0] != 'M' || exeBytes[1] != 'Z') {
             {
@@ -522,6 +555,10 @@ void MainWindow::PerformSelfUpdate() {
                 PostMessageW(targetHwnd, WM_BW_APP_UPDATE_RESULT, 1, 0);
             }
             return;
+        }
+
+        if (IsWindow(targetHwnd)) {
+            PostMessageW(targetHwnd, WM_BW_APP_UPDATE_PROGRESS, 100, (LPARAM)(exeBytes.size() / 1024));
         }
 
         std::wstring currentExe = Utils::GetExecutablePath();
@@ -581,12 +618,8 @@ void MainWindow::CreateControls() {
     SubclassButton(m_hTopCloseBtn);
 
     // session card controls
-    m_hWebLinkBtn = CreateWindowExW(0, L"BUTTON", L"Web Link", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-                                    348, 88, 92, 28, m_hWnd, (HMENU)IDC_BTN_WEB_LINK, m_hInstance, nullptr);
-    SubclassButton(m_hWebLinkBtn);
-
-    m_hDeepLinkBtn = CreateWindowExW(0, L"BUTTON", L"Deep Link", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
-                                        446, 88, 92, 28, m_hWnd, (HMENU)IDC_BTN_DEEP_LINK, m_hInstance, nullptr);
+    m_hDeepLinkBtn = CreateWindowExW(0, L"BUTTON", L"Copy Deep Link", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
+                                        388, 88, 150, 28, m_hWnd, (HMENU)IDC_BTN_DEEP_LINK, m_hInstance, nullptr);
     SubclassButton(m_hDeepLinkBtn);
 
     m_hAppUpdateBtn = CreateWindowExW(0, L"BUTTON", L"Check updates", WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
@@ -712,11 +745,7 @@ void MainWindow::CreateControls() {
         ti.hwnd = m_hWnd;
 
         ti.uId = (UINT_PTR)m_hDeepLinkBtn;
-        ti.lpszText = const_cast<LPWSTR>(L"Copy roblox:// Deep Link.\r\nTip: Press Win + R, paste (Ctrl+V) and hit Enter to join this server directly!");
-        SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
-
-        ti.uId = (UINT_PTR)m_hWebLinkBtn;
-        ti.lpszText = const_cast<LPWSTR>(L"Copy https:// Web Server Link to open in your browser.");
+        ti.lpszText = const_cast<LPWSTR>(L"Copy roblox:// server deep link to clipboard for sharing with clan or friends.\r\nTip: Clan members can paste in Discord or press Win+R to join directly!");
         SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
 
         ti.uId = (UINT_PTR)m_hAppUpdateBtn;
@@ -993,10 +1022,7 @@ void MainWindow::RelayoutControls(int width, int height) {
 
     // session card controls
     if (m_hDeepLinkBtn && IsWindow(m_hDeepLinkBtn)) {
-        SetWindowPos(m_hDeepLinkBtn, nullptr, width - 20 - 16 - 92, 88, 92, 28, SWP_NOZORDER);
-    }
-    if (m_hWebLinkBtn && IsWindow(m_hWebLinkBtn)) {
-        SetWindowPos(m_hWebLinkBtn, nullptr, width - 20 - 16 - 92 - 6 - 92, 88, 92, 28, SWP_NOZORDER);
+        SetWindowPos(m_hDeepLinkBtn, nullptr, width - 20 - 16 - 150, 88, 150, 28, SWP_NOZORDER);
     }
     if (m_hAppUpdateBtn && IsWindow(m_hAppUpdateBtn)) {
         SetWindowPos(m_hAppUpdateBtn, nullptr, width - 20 - 16 - 112, 161, 112, 24, SWP_NOZORDER);
@@ -1055,7 +1081,7 @@ void MainWindow::DrawModernButton(LPDRAWITEMSTRUCT dis) {
 
         bool onCard = (id == IDC_BTN_SAVE || id == IDC_BTN_CHOOSE_SOUND || id == IDC_BTN_CHOOSE_ALLY_SOUND ||
                         id == IDC_BTN_PREVIEW_ENEMY || id == IDC_BTN_PREVIEW_ALLY ||
-                        id == IDC_BTN_AUTOSTART || id == IDC_BTN_WEB_LINK || id == IDC_BTN_DEEP_LINK || id == IDC_BTN_APP_UPDATE);
+                        id == IDC_BTN_AUTOSTART || id == IDC_BTN_DEEP_LINK || id == IDC_BTN_APP_UPDATE);
         Gdiplus::Color underBg = onCard ? (isDark ? Gdiplus::Color(255, 30, 35, 48) : Gdiplus::Color(255, 255, 255, 255))
                                         : (isDark ? Gdiplus::Color(255, 20, 24, 33) : Gdiplus::Color(255, 244, 247, 252));
         g.Clear(underBg);
@@ -1174,13 +1200,8 @@ void MainWindow::DrawModernButton(LPDRAWITEMSTRUCT dis) {
     DeleteDC(hdcMem);
 }
 
-void MainWindow::SyncControlsFromConfig() {
-    Toggle_SetChecked(m_hEnemiesCheck, m_config.notify_enemies);
-    Toggle_SetChecked(m_hAlliesCheck, m_config.notify_allies);
-    Toggle_SetChecked(m_hSoundCheck, m_config.sound.enabled);
-    Toggle_SetChecked(m_hDarkModeCheck, m_config.appearance.dark_mode);
-
-    auto mapSoundIndex = [](const std::wstring& s) -> int {
+void MainWindow::UpdateSoundDropdownItems() {
+    auto mapIndex = [](const std::wstring& s) -> int {
         if (s == L"meow-1.mp3") return 0;
         if (s == L"ping.wav") return 1;
         if (s == L"meow-soft.wav") return 2;
@@ -1188,8 +1209,40 @@ void MainWindow::SyncControlsFromConfig() {
         return 4;
     };
 
-    Dropdown_SetCurSel(m_hSoundCombo, mapSoundIndex(m_config.sound.enemy_file));
-    Dropdown_SetCurSel(m_hAllySoundCombo, mapSoundIndex(m_config.sound.ally_file));
+    auto makeItems = [](const std::wstring& s) -> std::vector<std::wstring> {
+        std::wstring customLabel = L"Custom audio file...";
+        if (!s.empty() && s != L"meow-1.mp3" && s != L"ping.wav" && s != L"meow-soft.wav" && s != L"meow.wav") {
+            size_t slash = s.find_last_of(L"\\/");
+            std::wstring fn = (slash != std::wstring::npos) ? s.substr(slash + 1) : s;
+            if (fn.size() > 18) fn = fn.substr(0, 15) + L"...";
+            customLabel = L"Custom (" + fn + L")";
+        }
+        return {
+            L"Meow (meow-1.mp3)",
+            L"Soft ping (ping.wav)",
+            L"Softer meow (meow-soft.wav)",
+            L"Original meow (meow.wav)",
+            customLabel
+        };
+    };
+
+    if (m_hSoundCombo && IsWindow(m_hSoundCombo)) {
+        Dropdown_SetItems(m_hSoundCombo, makeItems(m_config.sound.enemy_file));
+        Dropdown_SetCurSel(m_hSoundCombo, mapIndex(m_config.sound.enemy_file));
+    }
+    if (m_hAllySoundCombo && IsWindow(m_hAllySoundCombo)) {
+        Dropdown_SetItems(m_hAllySoundCombo, makeItems(m_config.sound.ally_file));
+        Dropdown_SetCurSel(m_hAllySoundCombo, mapIndex(m_config.sound.ally_file));
+    }
+}
+
+void MainWindow::SyncControlsFromConfig() {
+    Toggle_SetChecked(m_hEnemiesCheck, m_config.notify_enemies);
+    Toggle_SetChecked(m_hAlliesCheck, m_config.notify_allies);
+    Toggle_SetChecked(m_hSoundCheck, m_config.sound.enabled);
+    Toggle_SetChecked(m_hDarkModeCheck, m_config.appearance.dark_mode);
+
+    UpdateSoundDropdownItems();
 
     Slider_SetValue(m_hVolumeSlider, m_config.sound.volume);
 
@@ -1265,6 +1318,7 @@ void MainWindow::SaveConfigFromControls() {
     if (m_config.SaveToFile(configPath)) {
         SetSaveStatusText(L"\u2713 Auto-saved");
         m_scanner->UpdateConfig(m_config);
+        if (m_antiAfk) m_antiAfk->SetEnabled(m_config.anti_afk);
         if (prevDark != m_config.appearance.dark_mode) {
             ApplyTheme();
         } else if (m_hWnd && IsWindow(m_hWnd)) {
@@ -1291,19 +1345,25 @@ void MainWindow::ChooseCustomSound(bool isAlly) {
         if (!imported.empty()) {
             if (isAlly) {
                 m_config.sound.ally_file = imported;
-                Dropdown_SetCurSel(m_hAllySoundCombo, 4);
+                UpdateSoundDropdownItems();
                 SaveConfigFromControls();
                 SetSaveStatusText(L"\u2713 Custom Ally sound saved");
+                m_audio->Play(m_config.sound.ally_file, m_config.sound.volume, m_dataDir);
             } else {
                 m_config.sound.enemy_file = imported;
                 m_config.sound.file = imported;
-                Dropdown_SetCurSel(m_hSoundCombo, 4);
+                UpdateSoundDropdownItems();
                 SaveConfigFromControls();
                 SetSaveStatusText(L"\u2713 Custom Enemy sound saved");
+                m_audio->Play(m_config.sound.enemy_file, m_config.sound.volume, m_dataDir);
             }
         } else {
             SetSaveStatusText(L"Audio error: " + err);
+            SyncControlsFromConfig();
         }
+    } else {
+        // User cancelled picker dialog - sync dropdown back to actual config
+        SyncControlsFromConfig();
     }
 }
 
@@ -1373,27 +1433,13 @@ void MainWindow::UpdateStatusDisplay() {
     }
 }
 
-void MainWindow::CopyServerWebLink() {
-    std::wstring link = m_scanner ? m_scanner->GetServerWebLink() : L"";
-    if (!link.empty()) {
-        Utils::CopyTextToClipboard(m_hWnd, link);
-        SetSaveStatusText(L"\u2713 Web link (https://) copied!");
-        if (m_toasts) {
-            m_toasts->ShowToast(L"Web Link Copied", L"Ally", L"Roblox Web Server Link", false, m_config);
-            EnsureAnimationTimer();
-        }
-    } else {
-        SetSaveStatusText(L"No active server detected yet.");
-    }
-}
-
 void MainWindow::CopyServerDeepLink() {
     std::wstring link = m_scanner ? m_scanner->GetServerDeepLink() : L"";
     if (!link.empty()) {
         Utils::CopyTextToClipboard(m_hWnd, link);
-        SetSaveStatusText(L"\u2713 Copied! Win+R \u2192 Ctrl+V \u2192 Enter");
+        SetSaveStatusText(L"\u2713 Copied Deep Link! Share with clan or paste in Discord/Win+R");
         if (m_toasts) {
-            m_toasts->ShowToast(L"Server Link Copied", L"Ally", L"Press Win + R, paste & Enter", false, m_config);
+            m_toasts->ShowToast(L"Deep Link Copied", L"Ally", L"Ready to share with clan / Discord", false, m_config);
             EnsureAnimationTimer();
         }
     } else {
@@ -1436,7 +1482,7 @@ void MainWindow::Run(bool startHidden, bool preview) {
 
     if (preview) {
         m_audio->Play(m_config.sound.enemy_file, m_config.sound.volume, m_dataDir);
-        m_toasts->ShowToast(L"PreviewPlayer", L"Enemy", L"Preview Clan", false, m_config);
+        m_toasts->ShowToast(L"PreviewPlayer", L"Enemy", L"", false, m_config);
         EnsureAnimationTimer();
     }
 
@@ -1627,7 +1673,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
                     }
                     std::wstring summary = std::to_wstring(enemies) + L" enemies / " + std::to_wstring(allies) +
                                             L" allies detected in this session's log. Updated " + m_scanner->GetLastScanTime() + L".";
-                    m_detectedWnd->UpdateData(players, summary, m_config, m_scanner->GetServerWebLink(), m_scanner->GetServerDeepLink());
+                    m_detectedWnd->UpdateData(players, summary, m_config, m_scanner->GetServerDeepLink());
                 }
             }
             if (m_toasts && m_toasts->HasActiveToasts()) {
@@ -1660,12 +1706,80 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
         }
         return 0;
     }
+    case WM_BW_APP_UPDATE_PROGRESS: {
+        int pct = (int)(short)wParam;
+        long long kb = (long long)lParam;
+        double mb = (double)kb / 1024.0;
+
+        wchar_t mbBuf[32];
+        swprintf_s(mbBuf, L"%.1f MB", mb);
+
+        std::wstring btnText;
+        std::wstring statusText;
+
+        if (pct >= 0 && pct < 100) {
+            btnText = L"Updating (" + std::to_wstring(pct) + L"%)...";
+            statusText = L"Downloading update: " + std::to_wstring(pct) + L"% (" + mbBuf + L")...";
+        } else if (pct >= 100) {
+            btnText = L"Installing...";
+            statusText = L"Installing update (" + std::wstring(mbBuf) + L")...";
+        } else {
+            btnText = L"Updating (" + std::wstring(mbBuf) + L")...";
+            statusText = L"Downloading update: " + std::wstring(mbBuf) + L"...";
+        }
+
+        if (m_hAppUpdateBtn && IsWindow(m_hAppUpdateBtn)) {
+            SetWindowTextW(m_hAppUpdateBtn, btnText.c_str());
+            InvalidateRect(m_hAppUpdateBtn, nullptr, FALSE);
+        }
+        SetSaveStatusText(statusText, 4000);
+        return 0;
+    }
     case WM_BW_APP_UPDATE_RESULT: {
         if (wParam == 2) {
             // self-update installed on disk
+            if (m_hAppUpdateBtn && IsWindow(m_hAppUpdateBtn)) {
+                SetWindowTextW(m_hAppUpdateBtn, L"Restarting...");
+                InvalidateRect(m_hAppUpdateBtn, nullptr, FALSE);
+            }
+            SetSaveStatusText(L"\u2713 Update complete! Restarting BorderWatch...", 4000);
+            UpdateWindow(m_hWnd);
+
+            // Clean up tray icon so no ghost icon remains
+            if (m_tray) {
+                m_tray->Remove();
+            }
+
+            // Hide the window
+            ShowWindow(m_hWnd, SW_HIDE);
+
+            // Release the single instance mutex so new process acquires it immediately
+            AppReleaseMutex();
+
+            // Launch the updated executable
             std::wstring exePath = Utils::GetExecutablePath();
-            ShellExecuteW(nullptr, L"open", exePath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
-            DestroyWindow(hWnd);
+            STARTUPINFOW si = { sizeof(si) };
+            PROCESS_INFORMATION pi = {};
+            std::wstring cmd = L"\"" + exePath + L"\"";
+
+            BOOL started = CreateProcessW(
+                nullptr,
+                cmd.data(),
+                nullptr, nullptr,
+                FALSE,
+                CREATE_NEW_PROCESS_GROUP,
+                nullptr, nullptr,
+                &si, &pi
+            );
+
+            if (started) {
+                CloseHandle(pi.hProcess);
+                CloseHandle(pi.hThread);
+            } else {
+                ShellExecuteW(nullptr, L"open", exePath.c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+            }
+
+            ExitProcess(0);
             return 0;
         }
 
@@ -1692,7 +1806,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
             SetSaveStatusText(statusMsg);
         }
         if (avail && m_toasts) {
-            m_toasts->ShowToast(L"BorderWatch " + latestVer, L"Ally", L"New update ready! Click 'Update' in app", false, m_config);
+            m_toasts->ShowUpdateToast(latestVer, m_config);
             EnsureAnimationTimer();
         }
         return 0;
@@ -1703,6 +1817,11 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
     }
     case WM_BW_OPEN_FROM_TOAST: {
         ShowPanel();
+        if (wParam == 1) {
+            if (m_updateAvailable && !m_updateDownloadUrl.empty()) {
+                PerformSelfUpdate();
+            }
+        }
         return 0;
     }
     case WM_BW_TRAY_MSG: {
@@ -1735,12 +1854,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
             }
             std::wstring summary = std::to_wstring(enemies) + L" enemies / " + std::to_wstring(allies) +
                                     L" allies detected in this session's log. Updated " + m_scanner->GetLastScanTime() + L".";
-            m_detectedWnd->Show(players, summary, m_config, m_scanner->GetServerWebLink(), m_scanner->GetServerDeepLink());
-            break;
-        }
-        case IDC_BTN_WEB_LINK:
-        case IDM_TRAY_WEB_LINK: {
-            CopyServerWebLink();
+            m_detectedWnd->Show(players, summary, m_config, m_scanner->GetServerDeepLink());
             break;
         }
         case IDC_BTN_DEEP_LINK:
@@ -1766,17 +1880,25 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
         }
         case IDC_BTN_TEST_SOUND:
         case IDC_BTN_PREVIEW_ENEMY: {
-            m_audio->Play(m_config.sound.enemy_file, m_config.sound.volume, m_dataDir);
-            m_toasts->ShowToast(L"PreviewEnemy", L"Enemy", L"Border Patrol", false, m_config);
+            bool ok = m_audio->Play(m_config.sound.enemy_file, m_config.sound.volume, m_dataDir);
+            m_toasts->ShowToast(L"PreviewEnemy", L"Enemy", L"", false, m_config);
             EnsureAnimationTimer();
-            SetSaveStatusText(L"\u25B6 Previewing Enemy alert");
+            if (ok) {
+                SetSaveStatusText(L"\u25B6 Previewing Enemy alert");
+            } else {
+                SetSaveStatusText(L"\u26A0 Could not play Enemy audio");
+            }
             break;
         }
         case IDC_BTN_PREVIEW_ALLY: {
-            m_audio->Play(m_config.sound.ally_file, m_config.sound.volume, m_dataDir);
-            m_toasts->ShowToast(L"PreviewAlly", L"Ally", L"Allied Guard", false, m_config);
+            bool ok = m_audio->Play(m_config.sound.ally_file, m_config.sound.volume, m_dataDir);
+            m_toasts->ShowToast(L"PreviewAlly", L"Ally", L"", false, m_config);
             EnsureAnimationTimer();
-            SetSaveStatusText(L"\u25B6 Previewing Ally alert");
+            if (ok) {
+                SetSaveStatusText(L"\u25B6 Previewing Ally alert");
+            } else {
+                SetSaveStatusText(L"\u26A0 Could not play Ally audio");
+            }
             break;
         }
         case IDC_BTN_AUTOSTART: {
@@ -1797,12 +1919,30 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
         case IDC_BTN_CHOOSE_ALLY_SOUND:
             ChooseCustomSound(true);
             break;
+        case IDC_CMB_SOUND: {
+            int soundIdx = Dropdown_GetCurSel(m_hSoundCombo);
+            if (soundIdx == 4) {
+                ChooseCustomSound(false);
+            } else {
+                SaveConfigFromControls();
+                UpdateSoundDropdownItems();
+            }
+            break;
+        }
+        case IDC_CMB_ALLY_SOUND: {
+            int allyIdx = Dropdown_GetCurSel(m_hAllySoundCombo);
+            if (allyIdx == 4) {
+                ChooseCustomSound(true);
+            } else {
+                SaveConfigFromControls();
+                UpdateSoundDropdownItems();
+            }
+            break;
+        }
         case IDC_CHK_ENEMIES:
         case IDC_CHK_ALLIES:
         case IDC_CHK_SOUND:
         case IDC_CHK_DARK_MODE:
-        case IDC_CMB_SOUND:
-        case IDC_CMB_ALLY_SOUND:
         case IDC_CMB_CORNER:
         case IDC_EDT_DURATION:
         case IDC_EDT_MAX_VISIBLE:
@@ -1854,7 +1994,7 @@ LRESULT MainWindow::HandleMessage(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPa
             }
             std::wstring summary = std::to_wstring(enemies) + L" enemies / " + std::to_wstring(allies) +
                                     L" allies detected in this session's log. Updated " + m_scanner->GetLastScanTime() + L".";
-            m_detectedWnd->UpdateData(players, summary, m_config, m_scanner->GetServerWebLink(), m_scanner->GetServerDeepLink());
+            m_detectedWnd->UpdateData(players, summary, m_config, m_scanner->GetServerDeepLink());
             if (m_watchlistWnd && m_watchlistWnd->IsVisible()) {
                 m_watchlistWnd->UpdateData(m_watchlist.GetAllPlayers(), m_config);
             }

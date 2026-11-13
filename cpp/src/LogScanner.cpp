@@ -1301,15 +1301,6 @@ std::wstring LogScanner::GetCurrentPlaceId() const {
     return m_currentPlaceId;
 }
 
-std::wstring LogScanner::GetServerWebLink() const {
-    std::lock_guard<std::recursive_mutex> lock(m_mutex);
-    if (m_currentServerId.empty()) return L"";
-    if (!m_currentPlaceId.empty()) {
-        return L"https://www.roblox.com/games/start?placeId=" + m_currentPlaceId + L"&gameInstanceId=" + m_currentServerId;
-    }
-    return L"https://www.roblox.com/games/start?gameInstanceId=" + m_currentServerId;
-}
-
 std::wstring LogScanner::GetServerDeepLink() const {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
     if (m_currentServerId.empty()) return L"";
@@ -1322,6 +1313,11 @@ std::wstring LogScanner::GetServerDeepLink() const {
 size_t LogScanner::GetTotalSeenNames() const {
     std::lock_guard<std::recursive_mutex> lock(m_mutex);
     return m_seenNames.size();
+}
+
+DWORD LogScanner::GetRobloxPid() const {
+    std::lock_guard<std::recursive_mutex> lock(m_mutex);
+    return m_robloxPid;
 }
 
 std::vector<uint8_t> LogScanner::GetAvatarForUser(const std::wstring& username) const {

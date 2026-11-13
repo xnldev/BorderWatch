@@ -8,7 +8,6 @@
 
 #define IDM_TRAY_OPEN      3001
 #define IDM_TRAY_DETECTED  3002
-#define IDM_TRAY_WEB_LINK  3003
 #define IDM_TRAY_DEEP_LINK 3004
 #define IDM_TRAY_PAUSE     3005
 #define IDM_TRAY_QUIT      3006

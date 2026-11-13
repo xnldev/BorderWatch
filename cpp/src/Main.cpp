@@ -35,6 +35,7 @@ static bool RunSelfTest(const std::wstring& targetDir) {
         // audio player test
         AudioPlayer audio;
         if (!audio.Initialize()) throw std::runtime_error("Audio engine failed to initialize");
+        if (!audio.Play(L"ping.wav", 0.0, targetDir)) throw std::runtime_error("Audio player failed to play or extract ping.wav");
 
         std::ofstream out(Utils::WideToUtf8(reportPath));
         out << "PASS: embedded assets verified and extracted\n"
@@ -49,6 +50,15 @@ static bool RunSelfTest(const std::wstring& targetDir) {
         err << "FAIL: " << ex.what() << "\n";
         err.close();
         return false;
+    }
+}
+
+HANDLE g_hAppMutex = nullptr;
+
+void AppReleaseMutex() {
+    if (g_hAppMutex) {
+        CloseHandle(g_hAppMutex);
+        g_hAppMutex = nullptr;
     }
 }
 
@@ -100,7 +110,23 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int) {
     }
 
     // single instance mutex
-    HANDLE hMutex = CreateMutexW(nullptr, FALSE, L"Local\\BorderWatchNativeMutex");
+    g_hAppMutex = CreateMutexW(nullptr, FALSE, L"Local\\BorderWatchNativeMutex");
+    if (GetLastError() == ERROR_ALREADY_EXISTS) {
+        // If an update just restarted the app, the previous instance may be in its final exit step.
+        // Retry for up to 1 second before concluding it's another already-running instance.
+        for (int retry = 0; retry < 10; ++retry) {
+            Sleep(100);
+            if (g_hAppMutex) {
+                CloseHandle(g_hAppMutex);
+                g_hAppMutex = nullptr;
+            }
+            g_hAppMutex = CreateMutexW(nullptr, FALSE, L"Local\\BorderWatchNativeMutex");
+            if (GetLastError() != ERROR_ALREADY_EXISTS) {
+                break;
+            }
+        }
+    }
+
     if (GetLastError() == ERROR_ALREADY_EXISTS) {
         HWND hExisting = FindWindowW(MAIN_CLASS_NAME, nullptr);
         if (hExisting) {
@@ -109,7 +135,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int) {
         } else {
             MessageBoxW(nullptr, L"BorderWatch is already running in the system tray.", L"BorderWatch", MB_OK | MB_ICONINFORMATION);
         }
-        CloseHandle(hMutex);
+        AppReleaseMutex();
         Gdiplus::GdiplusShutdown(gdiplusToken);
         CoUninitialize();
         return 0;
@@ -123,7 +149,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR pCmdLine, int) {
         }
     }
 
-    CloseHandle(hMutex);
+    AppReleaseMutex();
     timeEndPeriod(1);
     Gdiplus::GdiplusShutdown(gdiplusToken);
     CoUninitialize();

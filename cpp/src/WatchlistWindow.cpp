@@ -1,9 +1,11 @@
 #include "../include/WatchlistWindow.h"
 #include "../include/Utils.h"
 #include <algorithm>
+#include <cmath>
 #include <commctrl.h>
 #include <shellapi.h>
 #include <dwmapi.h>
+#include <mmsystem.h>
 #include <fstream>
 #include <sstream>
 
@@ -354,6 +356,12 @@ LRESULT CALLBACK WatchlistWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wPara
         SetCursor(LoadCursor(nullptr, IDC_ARROW));
         return TRUE;
     }
+    case WM_DESTROY:
+        if (self && self->m_scrollAnimating) {
+            self->m_scrollAnimating = false;
+            timeEndPeriod(1);
+        }
+        return 0;
     case WM_MOUSEWHEEL: {
         if (!self || self->m_filteredPlayers.empty()) return 0;
         int delta = GET_WHEEL_DELTA_WPARAM(wParam);
@@ -366,23 +374,39 @@ LRESULT CALLBACK WatchlistWindow::TableWndProc(HWND hWnd, UINT msg, WPARAM wPara
         int maxOffset = std::max(0, (int)self->m_filteredPlayers.size() - visibleRows);
 
         self->m_targetScrollY = std::clamp(self->m_targetScrollY + rowsDelta, 0.0f, (float)maxOffset);
-        self->m_scrollAnimating = true;
-        SetTimer(hWnd, 2, 16, nullptr);
+        if (!self->m_scrollAnimating) {
+            self->m_scrollAnimating = true;
+            LARGE_INTEGER li;
+            QueryPerformanceCounter(&li);
+            self->m_lastScrollQpc = li.QuadPart;
+            timeBeginPeriod(1);
+            SetTimer(hWnd, 2, 8, nullptr);
+        }
         return 0;
     }
     case WM_TIMER: {
         if (wParam == 2 && self && self->m_scrollAnimating) {
+            LARGE_INTEGER now, freq;
+            QueryPerformanceCounter(&now);
+            QueryPerformanceFrequency(&freq);
+            float dt = (float)(now.QuadPart - self->m_lastScrollQpc) / (float)freq.QuadPart;
+            self->m_lastScrollQpc = now.QuadPart;
+            dt = std::clamp(dt, 0.001f, 0.05f);
+
             float diff = self->m_targetScrollY - self->m_currentScrollY;
-            if (std::abs(diff) < 0.02f) {
+            if (std::abs(diff) < 0.002f) {
                 self->m_currentScrollY = self->m_targetScrollY;
                 self->m_scrollOffset = (int)std::round(self->m_currentScrollY);
                 self->m_scrollAnimating = false;
                 KillTimer(hWnd, 2);
+                timeEndPeriod(1);
             } else {
-                self->m_currentScrollY += diff * 0.30f;
+                float factor = 1.0f - std::exp(-16.0f * dt);
+                self->m_currentScrollY += diff * factor;
                 self->m_scrollOffset = (int)std::round(self->m_currentScrollY);
             }
             InvalidateRect(hWnd, nullptr, FALSE);
+            UpdateWindow(hWnd);
         }
         return 0;
     }
@@ -971,6 +995,10 @@ void WatchlistWindow::Show(const std::vector<PlayerRecord>& players, const Confi
             SendMessageW(m_hTooltip, TTM_ADDTOOLW, 0, (LPARAM)&ti);
         }
     }
+
+    RECT rc = { 0 };
+    GetClientRect(m_hWnd, &rc);
+    RelayoutControls(rc.right - rc.left, rc.bottom - rc.top);
 
     UpdateData(players, config);
     ShowWindow(m_hWnd, SW_SHOW);

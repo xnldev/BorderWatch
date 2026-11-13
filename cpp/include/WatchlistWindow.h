@@ -76,6 +76,7 @@ private:
     float m_currentScrollY = 0.0f;
     float m_targetScrollY = 0.0f;
     bool m_scrollAnimating = false;
+    LONGLONG m_lastScrollQpc = 0;
     int m_hoveredRow = -1;
     int m_selectedRow = -1;
 };
